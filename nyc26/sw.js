@@ -1,5 +1,5 @@
 /* NYC '26 service worker: çevrimdışı kabuk, harita karoları, fotoğraflar, bildirimler */
-const V = "nyc26-v10";
+const V = "nyc26-v11";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css",
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"];
@@ -30,7 +30,7 @@ async function cacheFirst(req, name, max) {
 async function netFirst(req, name) {
   const c = await caches.open(name);
   try {
-    const r = await fetch(req);
+    const r = await fetch(req.mode === "navigate" ? new Request(req.url, { cache: "no-cache", credentials: "same-origin" }) : req, req.mode === "navigate" ? undefined : { cache: "no-cache" });
     if (r && r.ok) c.put(req, r.clone());
     return r;
   } catch (e) {
