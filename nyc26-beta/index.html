@@ -102,7 +102,8 @@ h2.sec small{font-family:var(--m);font-size:11px;letter-spacing:0;color:var(--mu
 .stop .nd{position:relative;z-index:1;width:22px;height:22px;margin:7px 0 0 4px;border-radius:50%;background:#fff;border:4px solid var(--ink)}
 .stop.exp .nd{background:var(--ink)}
 .stop.ok .nd{background:var(--green);border-color:var(--ink)}
-.stop .bx{margin:3px 0 4px 6px;background:var(--card);border:1.5px solid var(--ink);border-radius:3px;padding:8px 10px 9px;display:flex;gap:10px;align-items:flex-start;text-align:left;width:calc(100% - 6px)}
+.bw{position:relative}.more{position:absolute;right:6px;top:8px;z-index:2;width:30px;height:30px;border-radius:50%;font-size:18px;font-weight:900;line-height:1;background:var(--paper2);color:var(--ink)}
+.stop .bx{padding-right:40px!important;margin:3px 0 4px 6px;background:var(--card);border:1.5px solid var(--ink);border-radius:3px;padding:8px 10px 9px;display:flex;gap:10px;align-items:flex-start;text-align:left;width:calc(100% - 6px)}
 .stop .bx .ph{width:48px;height:48px;flex:none;border-radius:2px;background:#ddd center/cover}
 .bx .tx{flex:1;min-width:0}
 .bx .tx b{display:block;font-size:15.5px;font-weight:780;font-stretch:88%;line-height:1.15}
@@ -391,7 +392,7 @@ const mv=id=>vote(ME,id),ov=id=>vote(OTHER(),id);
 const both=id=>vote("necmi",id)===1&&vote("ahmet",id)===1;
 const anyLike=id=>vote("necmi",id)===1||vote("ahmet",id)===1;
 function isDate(s){return /^\d{4}-\d\d-\d\d$/.test(s||"")}
-function dayOf(it){return S.plan[it.id]||(isDate(it.when)?it.when:null)}
+function dayOf(it){const p=S.plan[it.id];if(p==="-")return null;return p||(isDate(it.when)?it.when:null)}
 function timeOf(it){return S.ptime[it.id]||it.time||""}
 function tmin(t){const m=/^(\d{1,2}):(\d\d)/.exec(t||"");return m?(+m[1])*60+(+m[2]):null}
 function durMin(it){const d=it.dur;if(typeof d==="number")return d;const s=String(d||"");let m=/(\d+(?:[.,]\d+)?)\s*s/.exec(s);if(m)return Math.round(parseFloat(m[1].replace(",","."))*60);m=/(\d+)\s*dk/.exec(s);if(m)return +m[1];return({otel:0,yemek:75,caz:120,broadway:165,sahne:120,muze:150,manzara:75,deneyim:90,ozel:180,ucus:60})[it.cat]||90}
@@ -434,7 +435,20 @@ function doBook(i){const on=!S.booked[i];if(on)S.booked[i]=ME;else delete S.book
   if(on){const it=I[i];let n=0;if(it.grp)n=S.items.filter(x=>x.grp===it.grp&&x.id!==i&&!S.booked[x.id]).length;toast("✓ Alındı olarak işaretlendi"+(n?" · aynı gruptaki "+n+" seçenek arşive taşındı":""))}
   renderSoft()}
 function doArchive(i,on){if(on)S.archive[i]={by:ME,r:"Arşive alındı"};else delete S.archive[i];send("trip_archive",{i,p:ME,a:on,r:on?"Arşive alındı":null});toast(on?"Arşive alındı":"Arşivden çıkarıldı");renderSoft()}
-function doPlan(i,d,t){if(d){S.plan[i]=d;if(t)S.ptime[i]=t}else{delete S.plan[i];delete S.ptime[i]}send("trip_plan2",{i,d:d||"",t:t||null});renderSoft()}
+function doPlan(i,d,t){const it=I[i];if(!d&&it&&isDate(it.when))d="-";if(d){S.plan[i]=d;if(t)S.ptime[i]=t}else{delete S.plan[i];delete S.ptime[i]}send("trip_plan2",{i,d:d||"",t:t||null});renderSoft()}
+function unplan(i){doPlan(i,"");toast("Programdan çıkarıldı")}
+function replaceStop(oldId,newId){const o=I[oldId];const d=dayOf(o),t=timeOf(o);doPlan(newId,d,t);doPlan(oldId,"");toast("⇄ "+I[newId].title.split("·")[0].trim()+" ile değiştirildi");closeSheet()}
+async function geocode(q){try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&viewbox=-74.26,40.92,-73.70,40.49&bounded=1&q="+encodeURIComponent(q));const j=await r.json();if(j&&j[0])return{lat:+j[0].lat,lng:+j[0].lon}}catch(e){}return null}
+async function addCustom(d){
+  const title=$("#ctitle").value.trim();if(!title)return toast("Bir başlık yazın");
+  const t=$("#ctime").value||null,cat=$("#ccat").value,addr=$("#caddr").value.trim()||null;
+  const b=$("#cadd");b.disabled=true;b.textContent="Ekleniyor…";
+  let ll=null;if(addr&&navigator.onLine)ll=await geocode(addr);
+  const tmp="u-tmp"+Date.now();const it={id:tmp,cat,title,addr,time:t,by:ME,custom:true,addedAt:Date.now()};if(ll){it.lat=ll.lat;it.lng=ll.lng}
+  S.items.push(it);I[tmp]=it;S.plan[tmp]=d;if(t)S.ptime[tmp]=t;
+  send("trip_add_item",{p:ME,title,cat,d,t,addr,lat:ll?ll.lat:null,lng:ll?ll.lng:null,descr:null});
+  closeSheet();renderSoft();toast("＋ "+title+" programa eklendi"+(addr&&!ll?" (adres haritada bulunamadı)":""));
+}
 function doNote(i,t){t=(t||"").trim();if(!t)return;S.notes.push({id:-Date.now(),i,p:ME,t,ts:Date.now(),pend:1});send("trip_note",{i,p:ME,t,del:null});renderSoft()}
 function delNote(nid){S.notes=S.notes.filter(n=>n.id!==nid);send("trip_note",{i:"",p:ME,t:"",del:nid});renderSoft()}
 function doChat(t){t=(t||"").trim();if(!t)return;S.chat.push({id:-Date.now(),p:ME,role:"user",text:t,ts:Date.now(),pend:1});send("trip_chat",{p:ME,t});renderSoft();setTimeout(()=>scrollTo(0,document.body.scrollHeight),50)}
@@ -570,7 +584,7 @@ function stopHtml(it){
   const B=S.booked[it.id],need=needsBook(it)&&!B,ph=photo(it);
   const cls=["stop",B?"ok":"",(it.must||both(it.id))&&!B?"exp":""].join(" ");
   const nn=S.notes.filter(n=>n.i===it.id).length;
-  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}</small><div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}</div></div></button></div>`;
+  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><div class="bw"><button class="more" data-more="${it.id}" aria-label="Düzenle">⋯</button><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}</small><div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}</div></div></button></div></div>`;
 }
 
 /* ---------- REZERV ---------- */
@@ -732,8 +746,30 @@ function dayNoteSheet(d){
   return `<div class="dt"><div class="cat">Gün notu</div><h3>${fmtDay(d)}</h3></div><div class="notes">${S.notes.filter(n=>n.i==="day:"+d).map(noteHtml).join("")}<div class="nform"><textarea id="nin" placeholder="Bu gün için not: buluşma yeri, kıyafet, hatırlatma…"></textarea><button class="btn k" id="nsend" data-ni="day:${d}">Ekle</button></div></div>`;
 }
 function addSheet(d){
-  const pool=S.items.filter(x=>!dayOf(x)&&!archInfo(x)&&x.cat!=="otel"&&x.cat!=="ucus").sort((a,b)=>score(b)-score(a));
-  return `<div class="dt"><div class="cat">Güne ekle</div><h3>${fmtDay(d)}</h3><p style="color:var(--mute);font-size:13px">Beğenilenler üstte. Dokunun, detayda gün ve saat seçin.</p></div><div class="list pick" style="margin-top:8px">${pool.slice(0,60).map(x=>`<button class="row" data-open="${x.id}" data-preday="${d}">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💚":anyLike(x.id)?" · 👍":""}</small></span></button>`).join("")}</div>`;
+  const pool=S.items.filter(x=>!dayOf(x)&&!archInfo(x)&&!isAlt(x)&&x.cat!=="otel"&&x.cat!=="ucus").sort((a,b)=>score(b)-score(a));
+  const last=dayItems(d).map(x=>tmin(timeOf(x))).filter(x=>x!=null).sort((a,b)=>b-a)[0];
+  const def=last!=null?String(Math.min(23,Math.floor(last/60)+2)).padStart(2,"0")+":00":"12:00";
+  const catOpt=Object.entries(CAT).filter(([k])=>k!=="ucus"&&k!=="otel").map(([k,c])=>`<option value="${k}" ${k==="deneyim"?"selected":""}>${c.n}</option>`).join("");
+  return `<div class="dt"><div class="cat">Programa ekle</div><h3>${fmtDay(d)}</h3></div>
+  <div class="plbox"><label>Saat</label><input id="at" type="time" value="${def}" step="900"><span style="font-size:12px;color:var(--mute)">Listeden ＋ ile bu saate eklenir</span></div>
+  <details class="plbox" style="display:block"><summary style="font-weight:800;cursor:pointer">✎ Kendi etkinliğini ekle (listede olmayan)</summary>
+   <div style="display:grid;gap:8px;margin-top:10px"><input id="ctitle" placeholder="Ne? ör. Arkadaşla buluşma, alışveriş" style="width:100%"><div style="display:flex;gap:8px"><select id="ccat" style="flex:1">${catOpt}</select><input id="ctime" type="time" value="${def}" step="900"></div><input id="caddr" placeholder="Adres ya da yer adı (opsiyonel, haritaya düşer)" style="width:100%"><button class="btn k" id="cadd" data-cd="${d}">＋ Ekle</button></div></details>
+  <h2 class="sec">Önerilenler<small>beğenilenler üstte</small></h2><div class="list pick">${pool.slice(0,80).map(x=>`<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${x.id}">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💚":anyLike(x.id)?" · 👍":""}</small></span></button><button class="btn s k" data-addto="${x.id}|${d}">＋</button></div>`).join("")}</div>`;
+}
+function stopSheet(i){
+  const it=I[i];const d=dayOf(it),t=timeOf(it);
+  const pts=it;const cands=S.items.filter(x=>x.id!==i&&!dayOf(x)&&!archInfo(x)&&x.cat!=="otel"&&x.cat!=="ucus")
+    .map(x=>({x,s:(x.cat===it.cat?3:0)+(both(x.id)?3:anyLike(x.id)?1.5:0)+(x.grp&&x.grp===it.grp?4:0)-(hasLL(x)&&hasLL(it)?hav(x,it)/2:1)}))
+    .sort((a,b)=>b.s-a.s).slice(0,12);
+  return `<div class="dt"><div class="cat">Durağı düzenle · ${fmtDay(d,1)} ${esc(t)}</div><h3>${esc(it.title)}</h3></div>
+  <div class="plbox"><label>Saat / gün</label><select id="sd">${DAYS.map(z=>`<option value="${z[0]}" ${d===z[0]?"selected":""}>${fmtDay(z[0])}</option>`).join("")}</select><input id="st" type="time" value="${esc(t)}" step="900"><button class="btn k s" id="ssave">Kaydet</button></div>
+  <div class="acts2"><button class="btn s" data-open="${i}">Detayı aç</button><button class="btn s r" id="srem">✕ Programdan çıkar</button></div>
+  <h2 class="sec">⇄ Yerine bunu koy<small>aynı gün ve saat</small></h2><div class="list pick">${cands.map(({x})=>`<div class="row">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💚":anyLike(x.id)?" · 👍":""}${hasLL(x)&&hasLL(it)?" · "+km(hav(x,it)*1.3)+" uzakta":""}</small></span><button class="btn s k" data-rep="${x.id}">⇄</button></div>`).join("")}</div>`;
+}
+function openStop(i){openSheet(stopSheet(i),"stop:"+i);
+  $("#ssave").onclick=()=>{doPlan(i,$("#sd").value,$("#st").value);toast("✓ "+fmtDay($("#sd").value,1)+" "+$("#st").value+" olarak kaydedildi");closeSheet()};
+  $("#srem").onclick=()=>{unplan(i);closeSheet()};
+  $("#sbody").querySelectorAll("[data-rep]").forEach(b=>b.onclick=()=>replaceStop(i,b.dataset.rep));
 }
 function guideSheet(){
   const G=S.meta.guide||[];
@@ -758,6 +794,8 @@ function bindSheet(){
   const ps=$("#psave");if(ps)ps.onclick=()=>{const i=sheetFor.slice(5);const d=$("#pd").value,t=$("#pt").value;doPlan(i,d,t);toast(d?"📅 "+fmtDay(d,1)+(t?" "+t:"")+" programına eklendi":"Programdan çıkarıldı")};
   const ns=$("#nsend");if(ns)ns.onclick=()=>{const t=$("#nin").value;const i=ns.dataset.ni||(sheetFor||"").replace(/^item:/,"");doNote(i,t);$("#nin").value=""};
   const dl=$("#dlmap");if(dl)dl.onclick=prefetchTiles;
+  sb.querySelectorAll("[data-addto]").forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.addto.split("|");const t=($("#at")||{}).value||"";doPlan(i,d,t);b.textContent="✓";b.disabled=true;toast("＋ "+I[i].title.split("·")[0].trim()+" · "+fmtDay(d,1)+" "+t)});
+  const ca=$("#cadd");if(ca)ca.onclick=()=>addCustom(ca.dataset.cd);
 }
 async function prefetchTiles(){
   // Manhattan (Battery → Central Park North) + DUMBO, zoom 12-15
@@ -817,6 +855,7 @@ function bindView(){
   const v=$("#view");
   v.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{selDay=b.dataset.day;ls("nyc_day",selDay);render()});
   v.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openItem(b.dataset.open));
+  v.querySelectorAll("[data-more]").forEach(b=>b.onclick=e=>{e.stopPropagation();openStop(b.dataset.more)});
   v.querySelectorAll("[data-v]").forEach(b=>b.onclick=e=>{e.stopPropagation();const [i,x]=b.dataset.v.split("|");doVote(i,+x)});
   v.querySelectorAll("[data-book]").forEach(b=>b.onclick=()=>doBook(b.dataset.book));
   v.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{if(b.dataset.grp){openGrp=b.dataset.grp;kFilter="all"}go(b.dataset.go)});
