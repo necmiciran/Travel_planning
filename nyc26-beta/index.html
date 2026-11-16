@@ -402,6 +402,8 @@ function archInfo(it){
   if(vote("necmi",it.id)===-1&&vote("ahmet",it.id)===-1)return{r:"İkiniz de geçtiniz",auto:true};
   return null;
 }
+function grpChosen(g){return S.items.find(x=>x.grp===g&&(S.booked[x.id]||both(x.id)||(g!=="otel"&&(x.by==="necmi"||x.by==="ahmet"))))}
+function isAlt(it){if(!it.grp||S.booked[it.id])return false;const c=grpChosen(it.grp);return !!(c&&c.id!==it.id)}
 function score(it){return (vote("necmi",it.id)+vote("ahmet",it.id))*2+(both(it.id)?2:0)+(it.must?1.5:0)+(it.urgent?.5:0)+(S.booked[it.id]?5:0)}
 function fmtDay(d,short){const x=DAYS.find(z=>z[0]===d);if(!x){if(!isDate(d))return d||"";const [y,m,g]=d.split("-");return (+g)+" "+AY[+m-1]}const g=+d.slice(8),m=+d.slice(5,7);return short?g+" "+AY[m-1].slice(0,3):g+" "+AY[m-1]+" "+x[2]}
 function bul(cat,size){const C=CAT[cat]||CAT.deneyim;return `<span class="bul" style="background:${C.c};color:${C.t}${size?`;width:${size}px;height:${size}px`:""}">${C.l}</span>`}
@@ -467,7 +469,7 @@ function badges(){
   const lastK=seen.k||0,lastC=seen.c||0;
   b.kesfet=S.items.filter(x=>(x.addedAt||0)>lastK&&!archInfo(x)).length||0;
   b.sohbet=S.chat.filter(m=>m.ts>lastC&&(m.role==="claude"||m.p!==ME)).length||0;
-  b.rez=S.items.filter(x=>needsBook(x)&&x.urgent&&!S.booked[x.id]&&!archInfo(x)&&(dayOf(x)||anyLike(x.id)||x.must)).length||0;
+  b.rez=S.items.filter(x=>needsBook(x)&&x.urgent&&!S.booked[x.id]&&!archInfo(x)&&!isAlt(x)&&(dayOf(x)||anyLike(x.id)||x.must)).length||0;
   return b;
 }
 function markSeen(){
@@ -489,7 +491,7 @@ function detectNew(){
 
 /* ---------- HAT (day line) ---------- */
 function dayItems(d){
-  return S.items.filter(it=>dayOf(it)===d&&!(archInfo(it)&&!S.booked[it.id])&&it.cat!=="otel")
+  return S.items.filter(it=>dayOf(it)===d&&!(archInfo(it)&&!S.booked[it.id])&&it.cat!=="otel"&&!isAlt(it))
    .sort((a,b)=>(tmin(timeOf(a))??9999)-(tmin(timeOf(b))??9999));
 }
 function defaultDay(){const n=nyNow().d;return DAYS.some(z=>z[0]===n)?n:(ls("nyc_day")&&DAYS.some(z=>z[0]===ls("nyc_day"))?ls("nyc_day"):DAYS[0][0])}
@@ -505,7 +507,7 @@ function rHat(){
   document.documentElement.style.setProperty("--day",D[4]);document.documentElement.style.setProperty("--dayT",D[5]);
   let h="";
   // alerts
-  const urg=S.items.filter(x=>needsBook(x)&&x.urgent&&!S.booked[x.id]&&!archInfo(x)&&(dayOf(x)||anyLike(x.id)||x.must));
+  const urg=S.items.filter(x=>needsBook(x)&&x.urgent&&!S.booked[x.id]&&!archInfo(x)&&!isAlt(x)&&(dayOf(x)||anyLike(x.id)||x.must));
   const nowList=(S.meta.guide||[]).find(g=>/Şimdi/.test(g.t));
   if(urg.length)h+=`<button class="alert" data-go="rez"><span class="ai">⏰</span><div><b>${urg.length} acil rezervasyon bekliyor</b><span>${esc(urg.slice(0,3).map(x=>x.title.split("·")[0].trim()).join(", "))}${urg.length>3?"…":""}</span></div></button>`;
   // strip
@@ -523,7 +525,7 @@ function rHat(){
   let prev=hot&&selDay!=="2026-12-25"?Object.assign({},hot,{_hotel:1}):null;
   if(prev)h+=`<div class="stop"><div class="tm" style="color:var(--mute)">🏨</div><div class="nd" style="border-radius:3px"></div><div class="bx" style="border-style:dashed;background:transparent;padding:6px 10px"><div class="tx"><b style="font-size:13.5px">${esc(hot.title)}</b><small>Güne buradan başlıyorsunuz</small></div></div></div>`;
   let lastEnd=null,hadLunch=false,hadDinner=false;
-  const isFood=x=>x.cat==="yemek"||/yemek|dinner|brunch|kahvaltı/i.test(x.title);
+  const isFood=x=>x.cat==="yemek"||/yeme[kğ]|dinner|brunch|kahvaltı|steakhouse|restoran/i.test(x.title);
   list.forEach((it,ix)=>{
     const t=timeOf(it),m=tmin(t);
     // meal hints before this stop
@@ -531,13 +533,14 @@ function rHat(){
       hadLunch=true;const base=hasLL(prev)?prev:(hasLL(it)?it:null);
       if(base)h+=`<div class="gap"><div></div><div></div><div class="gx">🍽 <b>Öğle yemeği arası</b> · yakındaki lezzetler<div class="sg">${sgBtns(suggestNear(base,3),selDay)}</div></div></div>`;
     }
-    if(m!=null&&!hadDinner&&m>=17*60&&!list.some(x=>isFood(x)&&tmin(timeOf(x))>=17*60&&tmin(timeOf(x))<=21*60+30)&&["broadway","caz","ozel","sahne"].includes(it.cat)&&!/yemek/i.test(it.title)){
+    if(m!=null&&!hadDinner&&m>=17*60&&!list.some(x=>isFood(x)&&tmin(timeOf(x))>=17*60&&tmin(timeOf(x))<=21*60+30)&&["broadway","caz","ozel","sahne"].includes(it.cat)&&!isFood(it)){
       hadDinner=true;const base=hasLL(it)?it:(hasLL(prev)?prev:null);
       if(base)h+=`<div class="gap"><div></div><div></div><div class="gx">🍽 <b>Önce akşam yemeği</b> · ${esc(it.title.split("·")[0].trim())} yakınında<div class="sg">${sgBtns(suggestNear(base,3),selDay)}</div></div></div>`;
     }
     // free time
     if(lastEnd!=null&&m!=null&&m-lastEnd>=150){
       const base=hasLL(prev)?prev:null;const hrs=((m-lastEnd)/60).toFixed(1).replace(".0","").replace(".",",");
+      if(prev&&prev.cat==="ucus"||list[ix-1]&&list[ix-1].cat==="ucus")h+=`<div class="gap"><div></div><div></div><div class="gx">🧳 <b>Havalimanından otele · yerleşme</b><br><span style="color:var(--mute);font-size:12.5px">JFK → Manhattan sarı taksi sabit $70 (+ ek ücret, köprü, bahşiş ≈ $90-115) ya da AirTrain + metro (~1 sa). Erken check-in yoksa bavulu resepsiyona bırakın.</span></div></div>`;else
       h+=`<div class="gap"><div></div><div></div><div class="gx">☕ <b>Serbest zaman · ~${hrs} saat</b><br><span style="color:var(--mute);font-size:12.5px">Dinlenin, sokaklarda kaybolun${base?"; yakında denenecekler:":""}</span>${base?`<div class="sg">${sgBtns(suggestNear(base,2),selDay)}</div>`:""}</div></div>`;
     }
     // leg
@@ -546,6 +549,7 @@ function rHat(){
       h+=`<div class="leg"><div></div><div></div><div class="lx">${L.walk<=22?`🚶 <a href="${gm(prev,it,"walking")}" target="_blank" rel="noopener">${L.walk} dk yürü</a> · ${km(L.km)}`:`🚇 <a href="${gm(prev,it,"transit")}" target="_blank" rel="noopener">metro ~${L.transit} dk</a> · 🚕 <a href="${gm(prev,it,"driving")}" target="_blank" rel="noopener">~${L.car} dk</a> · 🚶 <a href="${gm(prev,it,"walking")}" target="_blank" rel="noopener">${L.walk} dk</a>`}</div></div>`;
     }
     h+=stopHtml(it);
+    if(it.grp&&it.grp!=="otel"){const alts=S.items.filter(x=>x.grp===it.grp&&x.id!==it.id&&isAlt(x)&&!archInfo(x));if(alts.length)h+=`<div class="gap"><div></div><div></div><div class="gx" style="border-style:dotted">↔ <b>Alternatifler</b> <span style="color:var(--mute);font-size:12px">(bunu ✓ alınca arşive geçer)</span><div class="sg">${alts.map(x=>`<button class="sgb" data-open="${x.id}">${bul(x.cat,16)}${esc(x.title.split("·")[0].trim())}</button>`).join("")}</div></div></div>`}
     if(hasLL(it))prev=it;
     if(m!=null)lastEnd=m+durMin(it);
     if(isFood(it)&&m!=null){if(m<16*60)hadLunch=true;else hadDinner=true}
@@ -571,7 +575,7 @@ function stopHtml(it){
 function rRez(){
   const rel=S.items.filter(x=>needsBook(x)&&(dayOf(x)||anyLike(x.id)||x.must||S.booked[x.id]||x.cat==="otel"&&both(x.id)));
   const done=rel.filter(x=>S.booked[x.id]);
-  const todo=rel.filter(x=>!S.booked[x.id]&&!archInfo(x));
+  const todo=rel.filter(x=>!S.booked[x.id]&&!archInfo(x)&&!isAlt(x));
   const total=done.length+todo.length;
   let h=`<div class="prog"><b>${done.length} / ${total} rezervasyon tamam</b><br><small>Planda olan, beğendiğiniz ya da “kesin” işaretli ve bilet/rezervasyon gerektirenler. Aldığınızda ✓ işaretleyin; aynı gruptaki alternatifler kendiliğinden arşive geçer.</small><div class="bar"><i style="width:${total?Math.round(done.length/total*100):0}%"></i></div></div>`;
   const ho=hotel();
@@ -624,7 +628,7 @@ function rowHtml(it){
   const ph=photo(it),a=archInfo(it),B=S.booked[it.id];
   const nv=vote("necmi",it.id),av=vote("ahmet",it.id);
   const wi=(p,v)=>`<i class="${v===1?"l":v===-1?"d":""}">${PPL[p].l}</i>`;
-  return `<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:""}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
+  return `<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${!a&&isAlt(it)?`<span class="tag ar">alternatif</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:""}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="vq"><button class="${mv(it.id)===1?"on up":""}" data-v="${it.id}|1" aria-label="Beğendim">👍</button><button class="${mv(it.id)===-1?"on dn":""}" data-v="${it.id}|-1" aria-label="Geç">👎</button></div><div class="who">${wi("necmi",nv)}${wi("ahmet",av)}</div></div></div>`;
 }
 
