@@ -373,7 +373,7 @@ function rHarita(){
     L.marker(ll,{icon:ic}).addTo(LL).on("click",()=>{mapSel=it.id;$("#mapcard").innerHTML=card(it);$("#mapcard").scrollIntoView({behavior:"smooth",block:"start"})}).bindTooltip(esc(it.title),{direction:"top",offset:[0,-16]});
   });
   if(mapDay!=="all"&&mapDay!=="plan"&&pts.length>1)L.polyline(pts,{color:"#d9b45a",weight:2.5,opacity:.8,dashArray:"6 6"}).addTo(LL);
-  if(pts.length&&(mapDay!=="all"||!LM._fitOnce)){LM.fitBounds(pts,{padding:[30,30],maxZoom:15});LM._fitOnce=true}
+  if(pts.length&&mapDay!=="all")LM.fitBounds(pts,{padding:[30,30],maxZoom:15});else if(mapDay==="all"&&!LM._f){LM.setView([40.733,-73.985],13);LM._f=1}
   const used=[...new Set(list.map(i=>i.cat))].filter(c=>CATS[c]);
   $("#mleg").innerHTML=used.map(c=>`<span><i style="background:${CATS[c].dot}"></i>${CATS[c].n}</span>`).join("")+`<span><i style="background:#4fd69c"></i>İkiniz de</span>`;
   const sel=items.find(i=>i.id===mapSel);
