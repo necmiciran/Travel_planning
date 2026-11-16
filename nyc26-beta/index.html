@@ -43,6 +43,7 @@ input,textarea,select{font:inherit;color:inherit}
 .sign .sub{font-size:11.5px;font-weight:600;opacity:.75;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
 .bul{display:inline-grid;place-items:center;border-radius:50%;font-weight:800;font-stretch:90%;flex:none;line-height:1}
 .sign .logo{width:38px;height:38px;background:var(--red);color:#fff;font-size:15px;font-stretch:100%}
+.wxl{margin:6px 14px 0;padding:7px 10px;background:#e8f1fd;border-left:4px solid var(--blue);font-size:12.5px;border-radius:2px}
 .clk{margin-top:5px;font-family:var(--m);font-size:12px;font-weight:700;display:flex;gap:10px;flex-wrap:wrap}.clk span{display:inline-flex;gap:5px;align-items:center}.clk i{font-style:normal;font-family:var(--f);font-size:9.5px;letter-spacing:.1em;opacity:.65}
 .cd{text-align:right;flex:none}
 .cd b{display:block;font-family:var(--m);font-size:22px;line-height:1}
@@ -475,7 +476,20 @@ function renderSign(){
   $("#pguide").onclick=openGuide;
 }
 function confirmSwitch(){return true}
-function clocks(){const f=tz=>new Date().toLocaleTimeString("tr-TR",{timeZone:tz,hour:"2-digit",minute:"2-digit"});const d=tz=>new Date().toLocaleDateString("tr-TR",{timeZone:tz,weekday:"short"});return `<span><i>NEW YORK</i>${f("America/New_York")} ${d("America/New_York")}</span><span><i>İSTANBUL</i>${f("Europe/Istanbul")} ${d("Europe/Istanbul")}</span><span style="opacity:.6"><i>FARK</i>8 sa</span>`}
+const WMO={0:["☀️","açık"],1:["🌤","az bulutlu"],2:["⛅","parçalı bulutlu"],3:["☁️","kapalı"],45:["🌫","sisli"],48:["🌫","kırağılı sis"],51:["🌦","çisenti"],53:["🌦","çisenti"],55:["🌧","yoğun çisenti"],56:["🌧","donan çisenti"],57:["🌧","donan çisenti"],61:["🌧","hafif yağmur"],63:["🌧","yağmur"],65:["🌧","kuvvetli yağmur"],66:["🌧","donan yağmur"],67:["🌧","donan yağmur"],71:["🌨","hafif kar"],73:["🌨","kar"],75:["❄️","yoğun kar"],77:["🌨","kar taneleri"],80:["🌦","sağanak"],81:["🌧","sağanak"],82:["⛈","kuvvetli sağanak"],85:["🌨","kar sağanağı"],86:["❄️","yoğun kar sağanağı"],95:["⛈","fırtına"],96:["⛈","dolulu fırtına"],99:["⛈","dolulu fırtına"]};
+let WX=null;try{WX=JSON.parse(ls("nyc_wx")||"null")}catch(e){}
+async function loadWx(){
+  if(WX&&Date.now()-WX.ts<30*60*1000)return;
+  try{const r=await fetch("https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.006&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,snowfall_sum,wind_speed_10m_max&timezone=America%2FNew_York&forecast_days=16&wind_speed_unit=kmh");
+    const j=await r.json();WX={ts:Date.now(),j};ls("nyc_wx",JSON.stringify(WX));renderSign();if(tab==="hat")renderSoft()}catch(e){}
+}
+function wxNow(){if(!WX||!WX.j||!WX.j.current)return"";const c=WX.j.current;const w=WMO[c.weather_code]||["🌡",""];return `<span><i>HAVA</i>${w[0]} ${Math.round(c.temperature_2m)}° <small style="opacity:.7">his ${Math.round(c.apparent_temperature)}°</small></span>`}
+function wxDay(d){
+  const D=WX&&WX.j&&WX.j.daily;if(D){const i=D.time.indexOf(d);if(i>=0){const w=WMO[D.weather_code[i]]||["🌡",""];const sn=D.snowfall_sum[i];return `${w[0]} <b>${Math.round(D.temperature_2m_max[i])}° / ${Math.round(D.temperature_2m_min[i])}°</b> · ${w[1]}${D.precipitation_probability_max[i]!=null?" · yağış %"+D.precipitation_probability_max[i]:""}${sn>0?" · kar "+sn+" cm":""} · rüzgâr ${Math.round(D.wind_speed_10m_max[i])} km/s`}}
+  return `🌡 Aralık sonu ortalaması ~5° / -1° · tam tahmin yolculuğa 16 gün kala görünür`;
+}
+setInterval(loadWx,30*60*1000);
+function clocks(){const f=tz=>new Date().toLocaleTimeString("tr-TR",{timeZone:tz,hour:"2-digit",minute:"2-digit"});const d=tz=>new Date().toLocaleDateString("tr-TR",{timeZone:tz,weekday:"short"});return `<span><i>NEW YORK</i>${f("America/New_York")} ${d("America/New_York")}</span><span><i>İSTANBUL</i>${f("Europe/Istanbul")} ${d("Europe/Istanbul")}</span><span style="opacity:.6"><i>FARK</i>8 sa</span>${wxNow()}`}
 setInterval(()=>{const c=document.getElementById("clk");if(c)c.innerHTML=clocks()},20000);
 function renderTabs(){
   const b=badges();
@@ -539,7 +553,7 @@ function rHat(){
   const list=dayItems(selDay);
   const hot=hotel();
   const walkKm=(()=>{let s=0,prev=hot;for(const it of list){if(hasLL(it)&&prev&&hasLL(prev))s+=hav(prev,it)*1.3;if(hasLL(it))prev=it}return s})();
-  h+=`<div class="dayh"><span class="bul big">${+selDay.slice(8)}</span><div><h3>${fmtDay(selDay)}</h3><p>${list.length} durak${walkKm?` · ~${km(walkKm)} yol`:""}${hot?` · 🏨 ${esc(hot.title)}`:` · otel henüz seçilmedi`}</p></div></div>`;
+  h+=`<div class="dayh"><span class="bul big">${+selDay.slice(8)}</span><div><h3>${fmtDay(selDay)}</h3><p>${list.length} durak${walkKm?` · ~${km(walkKm)} yol`:""}${hot?` · 🏨 ${esc(hot.title)}`:` · otel henüz seçilmedi`}</p></div></div><div class="wxl">${wxDay(selDay)}</div>`;
   h+=`<div class="dact"><button class="btn s" data-add="${selDay}">＋ Güne ekle</button><button class="btn s" data-dmap="${selDay}">⌖ Günün haritası</button><button class="btn s" data-dnote="${selDay}">✎ Gün notu</button></div>`;
   // day notes
   const dn=S.notes.filter(n=>n.i==="day:"+selDay);
@@ -957,7 +971,7 @@ function boot(){
   try{const c=ls("nyc_state");if(c){norm(JSON.parse(c));}}catch(e){}
   if(!ME)pickPerson();
   if(S)render();else $("#view").innerHTML=`<div class="empty">Yükleniyor…</div>`;
-  lastSnap=null;load();
+  lastSnap=null;load();loadWx();
   setInterval(()=>{if(!document.hidden)load()},15000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden){load();renderSign()}});
   markSeen();
