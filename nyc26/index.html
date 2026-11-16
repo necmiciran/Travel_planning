@@ -92,6 +92,13 @@ select{font:inherit;font-size:13px;background:rgba(10,18,36,.6);color:var(--snow
 .todo tr:first-child td{border-top:0}
 .todo .ok{color:var(--grn);font-weight:700}.todo .no{color:#ffb3c0;font-weight:700}
 .todo b{display:block;font-size:13.5px}.todo span{color:var(--mut);font-size:12px}
+.vis.ph{height:230px}
+.gal{position:absolute;inset:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.gal::-webkit-scrollbar{display:none}
+.gal img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.vis.ph:after{content:"";position:absolute;inset:auto 0 0 0;height:70px;background:linear-gradient(transparent,rgba(10,18,36,.85));pointer-events:none}
+.gcount{position:absolute;right:12px;top:12px;z-index:2;font-size:11px;font-weight:700;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:8px;backdrop-filter:blur(6px)}
+.vis.ph .emo{display:none}
 .vote{display:flex;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line2)}
 .vb{flex:1;padding:12px;border-radius:14px;background:rgba(10,18,36,.55);border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;color:var(--mut);transition:transform .12s}
 .vb:active{transform:scale(.96)}
@@ -291,7 +298,7 @@ function card(it){
   const dsel=!it.when&&it.cat!=="otel"?`<select data-day="${esc(it.id)}"><option value="">📅 Güne ata</option>${DAYS.map(d=>`<option value="${d[0]}" ${plan[it.id]===d[0]?"selected":""}>${dayLabel(d[0])}</option>`).join("")}</select>`:"";
   const oTxt=o?`<span><b style="color:${COL[OTHER()]}">${NAME[OTHER()]}</b> ${o===1?"👍 beğendi":"👎 geçti"}</span>`:`<span>${NAME[OTHER()]} henüz oy vermedi</span>`;
   return `<article class="card ${B?"both":""} ${it.must?"must":""}">
-   <div class="vis">${art(it)}<div class="badge">${B?'<span class="b both">💚 İkiniz de</span>':""}${it.must?'<span class="b must">★ Olmazsa olmaz</span>':""}${it.urgent&&!B?'<span class="b urg">⏰ Erken rez.</span>':""}${it.by?`<span class="b new">${NAME[it.by]||it.by} buldu</span>`:""}${isNew?'<span class="b new">Yeni</span>':""}</div>
+   <div class="vis ${it.photos&&it.photos.length?"ph":""}">${it.photos&&it.photos.length?`<div class="gal">${it.photos.map((u,k)=>`<img loading="lazy" src="${esc(u)}" alt="${esc(it.title)} fotoğraf ${k+1}">`).join("")}</div><div class="gcount">📷 ${it.photos.length} · kaydır</div>`:art(it)}<div class="badge">${B?'<span class="b both">💚 İkiniz de</span>':""}${it.must?'<span class="b must">★ Olmazsa olmaz</span>':""}${it.urgent&&!B?'<span class="b urg">⏰ Erken rez.</span>':""}${it.by?`<span class="b new">${NAME[it.by]||it.by} buldu</span>`:""}${isNew?'<span class="b new">Yeni</span>':""}</div>
    <div class="cat" lang="en">${esc(C.n)}${it.area?" · "+esc(it.area):""}</div><div class="emo">${esc(it.emoji||C.e)}</div></div>
    <div class="body"><div class="ttl">${esc(it.title)}</div>${it.sub?`<div class="sub">${esc(it.sub)}</div>`:""}
     ${it.desc?`<div class="desc">${esc(it.desc)}</div>`:""}
