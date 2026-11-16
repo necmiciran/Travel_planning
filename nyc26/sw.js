@@ -1,5 +1,5 @@
 /* NYC '26 service worker: çevrimdışı kabuk, harita karoları, fotoğraflar, bildirimler */
-const V = "nyc26-v7";
+const V = "nyc26-v10";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css",
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"];
@@ -10,7 +10,7 @@ self.addEventListener("install", e => {
   self.skipWaiting();
 });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => !k.startsWith(V)).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => !k.startsWith(V) && !/^nyc26-(tiles|img|font)$/.test(k)).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 async function trim(name, max) {
@@ -45,9 +45,9 @@ self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const u = new URL(req.url);
-  if (u.hostname.endsWith("tile.openstreetmap.org")) return e.respondWith(cacheFirst(req, V + "-tiles", LIMITS.tiles));
-  if (u.hostname === "cf.bstatic.com") return e.respondWith(cacheFirst(req, V + "-img", LIMITS.img));
-  if (u.hostname.includes("fonts.g")) return e.respondWith(cacheFirst(req, V + "-font", LIMITS.font));
+  if (u.hostname.endsWith("tile.openstreetmap.org")) return e.respondWith(cacheFirst(req, "nyc26-tiles", LIMITS.tiles));
+  if (u.hostname === "cf.bstatic.com" || u.hostname.endsWith("wikimedia.org")) return e.respondWith(cacheFirst(req, "nyc26-img", LIMITS.img));
+  if (u.hostname.includes("fonts.g")) return e.respondWith(cacheFirst(req, "nyc26-font", LIMITS.font));
   if (u.hostname === "cdnjs.cloudflare.com") return e.respondWith(cacheFirst(req, V + "-shell", 50));
   if (u.origin === location.origin) return e.respondWith(netFirst(req, V + "-shell"));
 });
