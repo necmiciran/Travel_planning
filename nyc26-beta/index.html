@@ -43,6 +43,7 @@ input,textarea,select{font:inherit;color:inherit}
 .sign .sub{font-size:11.5px;font-weight:600;opacity:.75;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
 .bul{display:inline-grid;place-items:center;border-radius:50%;font-weight:800;font-stretch:90%;flex:none;line-height:1}
 .sign .logo{width:38px;height:38px;background:var(--red);color:#fff;font-size:15px;font-stretch:100%}
+.clk{margin-top:5px;font-family:var(--m);font-size:12px;font-weight:700;display:flex;gap:10px;flex-wrap:wrap}.clk span{display:inline-flex;gap:5px;align-items:center}.clk i{font-style:normal;font-family:var(--f);font-size:9.5px;letter-spacing:.1em;opacity:.65}
 .cd{text-align:right;flex:none}
 .cd b{display:block;font-family:var(--m);font-size:22px;line-height:1}
 .cd span{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
@@ -317,6 +318,8 @@ const DAYS=[
 const AY=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
 const GROUPS=[
  ["otel","Konaklama","otel",it=>it.cat==="otel"],
+ ["xmas","🎄 Noel & kış etkinlikleri","ozel",it=>!!it.xmas&&it.grp!=="nye"&&it.grp!=="xmas-dinner"],
+ ["film","🎬 Film & dizi mekânları","deneyim",it=>/^f-(?!tk)/.test(it.id)],
  ["ozel","Özel geceler · 25 / 30 / 31","ozel",it=>it.cat==="ozel"||it.grp==="nye"||it.grp==="xmas-dinner"],
  ["caz","Caz kulüpleri","caz",it=>it.cat==="caz"],
  ["bw","Broadway & sahne","broadway",it=>it.cat==="broadway"||it.cat==="sahne"],
@@ -464,7 +467,7 @@ function renderSign(){
   const me=PPL[ME]||{n:"?",c:"#666",l:"?"},ot=PPL[OTHER()];
   const otLikes=Object.values(V[OTHER()]||{}).filter(v=>v===1).length,meLikes=Object.values(V[ME]||{}).filter(v=>v===1).length;
   const push=ls("nyc_push")==="1";
-  $("#sign").innerHTML=`<div class="signrow"><span class="bul logo">NY</span><div class="tt"><h1>Noel'den Yılbaşına</h1><div class="sub">25 Ara → 2 Oca · Necmi & Ahmet</div></div>${cd}</div>
+  $("#sign").innerHTML=`<div class="signrow"><span class="bul logo">NY</span><div class="tt"><h1>Noel'den Yılbaşına</h1><div class="sub">25 Ara → 2 Oca · Necmi & Ahmet</div><div class="clk" id="clk">${clocks()}</div></div>${cd}</div>
   <div class="sbtns"><button class="pill me" id="pme"><span class="bul dot" style="background:${me.c};color:#fff">${me.l}</span>${me.n} · ${meLikes}👍</button><span class="pill"><span class="bul dot" style="background:${ot.c};color:#fff">${ot.l}</span>${ot.n} · ${otLikes}👍</span><span class="sp"></span>
   <button class="pill ${push?"":"warn"}" id="ppush">${push?"🔔":"🔕 Bildirim"}</button><button class="pill" id="pguide">ℹ Rehber</button></div>`;
   $("#pme").onclick=()=>{if(confirmSwitch())pickPerson()};
@@ -472,6 +475,8 @@ function renderSign(){
   $("#pguide").onclick=openGuide;
 }
 function confirmSwitch(){return true}
+function clocks(){const f=tz=>new Date().toLocaleTimeString("tr-TR",{timeZone:tz,hour:"2-digit",minute:"2-digit"});const d=tz=>new Date().toLocaleDateString("tr-TR",{timeZone:tz,weekday:"short"});return `<span><i>NEW YORK</i>${f("America/New_York")} ${d("America/New_York")}</span><span><i>İSTANBUL</i>${f("Europe/Istanbul")} ${d("Europe/Istanbul")}</span><span style="opacity:.6"><i>FARK</i>8 sa</span>`}
+setInterval(()=>{const c=document.getElementById("clk");if(c)c.innerHTML=clocks()},20000);
 function renderTabs(){
   const b=badges();
   const T=[["hat","Hat","◉"],["rez","Rezerv·₺","✓"],["kesfet","Keşfet","★"],["harita","Harita","⌖"],["sohbet","Sohbet","✎"]];
@@ -664,7 +669,7 @@ function rvRow(it){
 /* ---------- KEŞFET ---------- */
 function rKesfet(){
   const arch=S.items.filter(x=>archInfo(x));
-  const F=[["all","Tümü"],["new","👀 Oy vermediklerim"],["both","💚 İkimiz"],["taste","🍴 Mutlaka ye"],["mine","👤 Benim bulduklarım"],["arch","🗄 Arşiv ("+arch.length+")"]];
+  const F=[["all","Tümü"],["new","👀 Oy vermediklerim"],["both","💚 İkimiz"],["xmas","🎄 Noel"],["taste","🍴 Mutlaka ye"],["mine","👤 Benim bulduklarım"],["arch","🗄 Arşiv ("+arch.length+")"]];
   let h=`<div class="search">⌕<input id="kq" placeholder="Ara: caz, pizza, Tribeca…" value="${esc(kQuery)}"></div><div class="chips">${F.map(([k,n])=>`<button class="chip ${kFilter===k?"on":""}" data-kf="${k}">${n}</button>`).join("")}</div>`;
   const q=kQuery.trim().toLocaleLowerCase("tr");
   const pass=it=>{
@@ -675,6 +680,7 @@ function rKesfet(){
     if(kFilter==="new")return !mv(it.id)&&it.cat!=="ucus";
     if(kFilter==="both")return both(it.id);
     if(kFilter==="taste")return !!it.taste;
+    if(kFilter==="xmas")return !!it.xmas;
     if(kFilter==="mine")return it.by===ME;
     return true;
   };
