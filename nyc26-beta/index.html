@@ -110,6 +110,7 @@ h2.sec small{font-family:var(--m);font-size:11px;letter-spacing:0;color:var(--mu
 .bx .tx small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
 .tag{font-size:10.5px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:2px;background:var(--paper2);color:var(--ink2);white-space:nowrap}
+.ord{display:block;margin-top:4px;font-size:12.5px;font-weight:700;color:#8a1c12}.fun{margin:10px 0 0;padding:9px 11px;background:#fff8de;border-left:4px solid var(--yellow);font-size:13.5px;border-radius:2px}
 .tag.ok{background:var(--green);color:#fff}.tag.need{background:var(--orange);color:#fff}.tag.both{background:#d9f2df;color:#0b5a26}
 .tag.urg{background:var(--red);color:#fff}.tag.ar{background:#ddd;color:#555}.tag.by{background:#e6ecfa;color:var(--blue)}.tag.taste{background:#fff1c2;color:#7a5a00}
 .leg{min-height:26px;color:var(--mute);font-size:12px}
@@ -586,7 +587,7 @@ function stopHtml(it){
   const B=S.booked[it.id],need=needsBook(it)&&!B,ph=photo(it);
   const cls=["stop",B?"ok":"",(it.must||both(it.id))&&!B?"exp":""].join(" ");
   const nn=S.notes.filter(n=>n.i===it.id).length;
-  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><div class="bw"><button class="more" data-more="${it.id}" aria-label="Düzenle">⋯</button><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}</small><div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}</div></div></button></div></div>`;
+  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><div class="bw"><button class="more" data-more="${it.id}" aria-label="Düzenle">⋯</button><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}${it.rating?" · ★"+esc(String(it.rating).match(/[\d,]+\/5/)?String(it.rating).match(/[\d,]+\/5/)[0]:""):""}</small>${it.order?`<span class="ord">🍽 ${esc(it.order)}</span>`:""}<div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}${it.fun?`<span class="tag taste">🎬 ilginç</span>`:""}</div></div></button></div></div>`;
 }
 
 /* ---------- REZERV ---------- */
@@ -667,7 +668,7 @@ function rKesfet(){
   let h=`<div class="search">⌕<input id="kq" placeholder="Ara: caz, pizza, Tribeca…" value="${esc(kQuery)}"></div><div class="chips">${F.map(([k,n])=>`<button class="chip ${kFilter===k?"on":""}" data-kf="${k}">${n}</button>`).join("")}</div>`;
   const q=kQuery.trim().toLocaleLowerCase("tr");
   const pass=it=>{
-    if(q&&!((it.title+" "+(it.area||"")+" "+(it.desc||"")+" "+(it.sub||"")).toLocaleLowerCase("tr").includes(q)))return false;
+    if(q&&!((it.title+" "+(it.area||"")+" "+(it.desc||"")+" "+(it.sub||"")+" "+(it.order||"")+" "+(it.fun||"")).toLocaleLowerCase("tr").includes(q)))return false;
     const a=archInfo(it);
     if(kFilter==="arch")return !!a;
     if(a)return false;
@@ -693,7 +694,7 @@ function rowHtml(it){
   const ph=photo(it),a=archInfo(it),B=S.booked[it.id];
   const nv=vote("necmi",it.id),av=vote("ahmet",it.id);
   const wi=(p,v)=>`<i class="${v===1?"l":v===-1?"d":""}">${PPL[p].l}</i>`;
-  return `<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.rating?`<div class="pr" style="color:#7a5a00">★ ${esc(String(it.rating).replace(/ · \d.*$/,"").slice(0,40))}</div>`:""}${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${!a&&isAlt(it)?`<span class="tag ar">alternatif</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:""}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
+  return `<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.rating?`<div class="pr" style="color:#7a5a00">★ ${esc(String(it.rating).replace(/ · \d.*$/,"").slice(0,40))}</div>`:""}${it.order?`<span class="ord">🍽 ${esc(it.order)}</span>`:""}${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${!a&&isAlt(it)?`<span class="tag ar">alternatif</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:""}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.fun?`<span class="tag taste">🎬 ilginç</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="vq"><button class="${mv(it.id)===1?"on up":""}" data-v="${it.id}|1" aria-label="Beğendim">👍</button><button class="${mv(it.id)===-1?"on dn":""}" data-v="${it.id}|-1" aria-label="Geç">👎</button></div><div class="who">${wi("necmi",nv)}${wi("ahmet",av)}</div></div></div>`;
 }
 
@@ -766,13 +767,15 @@ function itemSheet(it){
   h+=`<div class="dt"><div class="hero" style="padding:0">${bul(it.cat,52)}<div><div class="cat">${C.n}${it.taste?" · NY klasiği":""}${it.by&&PPL[it.by]?" · "+PPL[it.by].n+" buldu":""}</div><h3>${esc(it.title)}</h3></div></div>${it.sub?`<div class="sb">${esc(it.sub)}</div>`:""}
   <div class="tags" style="margin-top:8px">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${needsBook(it)&&!B?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet / rezervasyon gerekli</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz de beğendiniz</span>`:""}${it.must?`<span class="tag urg">kesin</span>`:""}${a?`<span class="tag ar">🗄 ${esc(a.r)}</span>`:""}</div>
   ${it.note?`<div class="alert y" style="margin:10px 0 0;width:100%"><span class="ai">⚠</span><div><span>${esc(it.note)}</span></div></div>`:""}
+  ${it.order?`<div class="fun" style="background:#fdecea;border-color:var(--red)"><b>🍽 Burada ne yenir:</b> ${esc(it.order)}</div>`:""}
+  ${it.fun?`<div class="fun"><b>🎬 İlginç bilgi:</b> ${esc(it.fun)}</div>`:""}
   ${it.desc?`<p>${esc(it.desc)}</p>`:""}</div>`;
   const F=[];
   if(d&&it.cat!=="otel")F.push(["Gün",fmtDay(d)+(t?" · "+t:"")]);else if(it.when)F.push(["Ne zaman",it.when]);
   if(it.price)F.push(["Fiyat",it.price,1]);
   if(it.book)F.push(["Rezervasyon",it.book,1]);
   if(it.dur)F.push(["Süre",typeof it.dur==="number"?Math.round(it.dur/60*10)/10+" saat":it.dur]);
-  if(it.rating)F.push(["Puan",it.rating]);
+  if(it.rating)F.push(["Puan",it.rating,1]);
   if(it.size)F.push(["Oda",it.size]);
   if(it.addr)F.push(["Adres",it.addr,1]);
   if(ho&&hasLL(ho)&&hasLL(it)&&ho.id!==it.id){const x=legInfo(ho,it);F.push(["Otelden",`${km(x.km)} · 🚶 ${x.walk} dk · 🚇 ~${x.transit} dk`,1])}
