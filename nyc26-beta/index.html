@@ -35,7 +35,7 @@ input,textarea,select{font:inherit;color:inherit}
 .hide{display:none!important}
 
 /* ---------- Station sign header ---------- */
-.sign{position:sticky;top:0;z-index:40;background:var(--sign);color:var(--signText);padding:calc(8px + var(--safeT)) 14px 10px}
+.sign{position:sticky;top:0;z-index:1040;background:var(--sign);color:var(--signText);padding:calc(8px + var(--safeT)) 14px 10px}
 .sign:before{content:"";position:absolute;left:0;right:0;top:calc(var(--safeT) + 3px);height:3px;background:var(--signText);opacity:.95}
 .signrow{display:flex;align-items:center;gap:10px;margin-top:6px}
 .signrow .tt{flex:1;min-width:0}
@@ -55,7 +55,7 @@ input,textarea,select{font:inherit;color:inherit}
 #net{background:var(--yellow);color:#111;font-size:12.5px;font-weight:700;text-align:center;padding:5px 10px}
 
 /* ---------- Bottom tabs ---------- */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--sign);color:var(--signText);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + var(--safeB))}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:1050;background:var(--sign);color:var(--signText);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + var(--safeB))}
 nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.55;position:relative;padding:2px 0}
 nav.tabs button .ti{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:850;background:#2a2a2a;color:#fff}
 nav.tabs button.on{opacity:1}
@@ -188,7 +188,7 @@ details.grp[open]>summary:after{content:"–"}
 .pp small{color:var(--mute)}
 .pp .dl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .pp .dl a,.pp .dl button{font-size:12px;font-weight:750;border:1.5px solid #121212;border-radius:3px;padding:4px 7px;text-decoration:none;background:#fff}
-.mtools{position:absolute;right:10px;top:10px;z-index:500;display:flex;flex-direction:column;gap:6px}
+.mtools{position:absolute;right:10px;top:10px;z-index:900;display:flex;flex-direction:column;gap:6px}
 .mtools button{width:40px;height:40px;border-radius:3px;background:var(--card);border:1.5px solid var(--ink);font-size:17px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;padding:8px 14px;font-size:11.5px;color:var(--mute)}
 .legend span{display:inline-flex;align-items:center;gap:4px}
@@ -202,19 +202,19 @@ details.grp[open]>summary:after{content:"–"}
 .msg.ot{background:var(--card);border:1.5px solid var(--ink)}
 .msg.cl{background:#fff8de;border:1.5px solid #d9b500;max-width:94%}
 .msg .pend{font-size:11px;opacity:.7}
-.composer{position:fixed;left:0;right:0;bottom:calc(62px + var(--safeB));z-index:44;background:var(--paper);border-top:1.5px solid var(--ink);padding:8px 10px;display:flex;gap:8px}
+.composer{position:fixed;left:0;right:0;bottom:calc(62px + var(--safeB));z-index:1045;background:var(--paper);border-top:1.5px solid var(--ink);padding:8px 10px;display:flex;gap:8px}
 .composer textarea{flex:1;resize:none;height:42px;max-height:120px;border:1.5px solid var(--ink);border-radius:3px;padding:10px;background:var(--card);font-size:15px;outline:none}
 .hint{font-size:12px;color:var(--mute);padding:8px 14px 0}
 
 /* ---------- Sheet ---------- */
-#scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1090;opacity:0;pointer-events:none;transition:opacity .2s}
 #scrim.on{opacity:1;pointer-events:auto}
-#sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;max-height:92vh;background:var(--paper);border-top:4px solid var(--ink);border-radius:8px 8px 0 0;transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-bottom:var(--safeB)}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:1100;max-height:92vh;background:var(--paper);border-top:4px solid var(--ink);border-radius:8px 8px 0 0;transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-bottom:var(--safeB)}
 #sheet.on{transform:none}
 #sheet .grab{display:flex;justify-content:space-between;align-items:center;padding:8px 12px 6px}
 #sheet .grab i{width:40px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto}
 #sheet .x{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:50%;font-size:16px;font-weight:800;flex:none}
-#sbody{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 24px}
+#sbody{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 calc(40px + var(--safeB))}
 .gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:2px;height:230px;scrollbar-width:none;background:#222}
 .gal::-webkit-scrollbar{display:none}
 .gal img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
@@ -258,11 +258,11 @@ details.grp[open]>summary:after{content:"–"}
 .gd li{margin:6px 0;font-size:14px;line-height:1.4}
 .pick .row{padding:8px 0}
 
-#toast{position:fixed;left:12px;right:12px;bottom:calc(76px + var(--safeB));z-index:80;background:var(--ink);color:var(--paper);border-radius:3px;padding:11px 13px;font-size:13.5px;font-weight:600;transform:translateY(150%);transition:transform .25s;border-left:5px solid var(--yellow)}
-#toast.on{transform:none}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(76px + var(--safeB));z-index:1200;visibility:hidden;opacity:0;transition:opacity .2s,transform .25s,visibility .25s;background:var(--ink);color:var(--paper);border-radius:3px;padding:11px 13px;font-size:13.5px;font-weight:600;transform:translateY(150%);transition:transform .25s;border-left:5px solid var(--yellow)}
+#toast.on{transform:none;visibility:visible;opacity:1}
 
 /* ---------- Gate ---------- */
-#gate{position:fixed;inset:0;z-index:100;background:var(--sign);color:var(--signText);display:none;flex-direction:column;justify-content:center;padding:30px 24px calc(30px + var(--safeB))}
+#gate{position:fixed;inset:0;z-index:1300;background:var(--sign);color:var(--signText);display:none;flex-direction:column;justify-content:center;padding:30px 24px calc(30px + var(--safeB))}
 #gate.on{display:flex}
 #gate:before{content:"";position:absolute;left:0;right:0;top:calc(var(--safeT) + 18px);height:4px;background:var(--signText)}
 #gate h1{font-size:44px;font-weight:900;font-stretch:65%;line-height:.95;margin:16px 0 8px}
@@ -337,6 +337,7 @@ if(!["hat","rez","kesfet","harita","sohbet"].includes(tab))tab="hat";
 let selDay=null,kFilter="all",kQuery="",mapDay=ls("nyc_mday")||"all",sheetFor=null;
 let OB=[];try{OB=JSON.parse(ls("nyc_ob")||"[]")}catch(e){OB=[]}
 let seen={};try{seen=JSON.parse(ls("nyc_seen2")||"{}")}catch(e){}
+if(!seen.k){seen.k=+(ls("nyc_seen")||0)||Date.now();seen.c=+(ls("nyc_chat")||0)||Date.now();ls("nyc_seen2",JSON.stringify(seen))}
 
 /* ---------- data ---------- */
 async function rpc(fn,args){
@@ -495,8 +496,9 @@ function dayItems(d){
    .sort((a,b)=>(tmin(timeOf(a))??9999)-(tmin(timeOf(b))??9999));
 }
 function defaultDay(){const n=nyNow().d;return DAYS.some(z=>z[0]===n)?n:(ls("nyc_day")&&DAYS.some(z=>z[0]===ls("nyc_day"))?ls("nyc_day"):DAYS[0][0])}
-function suggestNear(pt,n,excl){
-  const pool=S.items.filter(x=>x.cat==="yemek"&&hasLL(x)&&!dayOf(x)&&!archInfo(x)&&!(excl||[]).includes(x.id));
+function suggestNear(pt,n,mode){
+  const okc=mode==="eve"?x=>(x.cat==="yemek"&&x.taste&&/tatl|puding|kurabiye|cheesecake/i.test(x.title+(x.sub||"")))||["caz","deneyim","manzara"].includes(x.cat):x=>x.cat==="yemek";
+  const pool=S.items.filter(x=>okc(x)&&hasLL(x)&&!dayOf(x)&&!archInfo(x)&&!isAlt(x));
   return pool.map(x=>({x,d:hav(pt,x)})).sort((a,b)=>(a.d-(a.x.taste?.15:0)-(anyLike(a.x.id)?.3:0))-(b.d-(b.x.taste?.15:0)-(anyLike(b.x.id)?.3:0))).slice(0,n);
 }
 function sgBtns(list,day,time){return list.map(({x,d})=>`<button class="sgb" data-open="${x.id}">${bul(x.cat,16)}${esc(x.title.split("·")[0].trim())}<span class="mono" style="color:var(--mute)">${km(d*1.3)}</span></button>`).join("")}
@@ -541,7 +543,7 @@ function rHat(){
     if(lastEnd!=null&&m!=null&&m-lastEnd>=150){
       const base=hasLL(prev)?prev:null;const hrs=((m-lastEnd)/60).toFixed(1).replace(".0","").replace(".",",");
       if(prev&&prev.cat==="ucus"||list[ix-1]&&list[ix-1].cat==="ucus")h+=`<div class="gap"><div></div><div></div><div class="gx">🧳 <b>Havalimanından otele · yerleşme</b><br><span style="color:var(--mute);font-size:12.5px">JFK → Manhattan sarı taksi sabit $70 (+ ek ücret, köprü, bahşiş ≈ $90-115) ya da AirTrain + metro (~1 sa). Erken check-in yoksa bavulu resepsiyona bırakın.</span></div></div>`;else
-      h+=`<div class="gap"><div></div><div></div><div class="gx">☕ <b>Serbest zaman · ~${hrs} saat</b><br><span style="color:var(--mute);font-size:12.5px">Dinlenin, sokaklarda kaybolun${base?"; yakında denenecekler:":""}</span>${base?`<div class="sg">${sgBtns(suggestNear(base,2),selDay)}</div>`:""}</div></div>`;
+      h+=`<div class="gap"><div></div><div></div><div class="gx">☕ <b>Serbest zaman · ~${hrs} saat</b><br><span style="color:var(--mute);font-size:12.5px">Dinlenin, sokaklarda kaybolun${base?"; yakında denenecekler:":""}</span>${base?`<div class="sg">${sgBtns(suggestNear(base,2,lastEnd>=17*60?"eve":"food"),selDay)}</div>`:""}</div></div>`;
     }
     // leg
     if(prev&&hasLL(prev)&&hasLL(it)){
@@ -552,7 +554,7 @@ function rHat(){
     if(it.grp&&it.grp!=="otel"){const alts=S.items.filter(x=>x.grp===it.grp&&x.id!==it.id&&isAlt(x)&&!archInfo(x));if(alts.length)h+=`<div class="gap"><div></div><div></div><div class="gx" style="border-style:dotted">↔ <b>Alternatifler</b> <span style="color:var(--mute);font-size:12px">(bunu ✓ alınca arşive geçer)</span><div class="sg">${alts.map(x=>`<button class="sgb" data-open="${x.id}">${bul(x.cat,16)}${esc(x.title.split("·")[0].trim())}</button>`).join("")}</div></div></div>`}
     if(hasLL(it))prev=it;
     if(m!=null)lastEnd=m+durMin(it);
-    if(isFood(it)&&m!=null){if(m<16*60)hadLunch=true;else hadDinner=true}
+    if(isFood(it)&&m!=null){if(m>=11*60&&m<16*60)hadLunch=true;else if(m>=16*60)hadDinner=true}
   });
   h+=`<div class="endst"><div></div><div class="nd"></div><span>${di<DAYS.length-1?"Gün sonu · "+(hot?"otele dönüş":"dinlenme"):"İyi yolculuklar ✈"}</span></div></div>`;
   // fits this day
