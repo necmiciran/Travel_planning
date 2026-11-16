@@ -127,6 +127,7 @@ select{font:inherit;font-size:13px;background:rgba(10,18,36,.6);color:var(--snow
 /* map */
 #lmap{height:62vh;min-height:380px;border-radius:var(--r);border:1px solid var(--line);overflow:hidden;box-shadow:var(--sh);background:#0a1224}
 .leaflet-container{font-family:Inter,sans-serif}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(195deg) brightness(.9) contrast(.85) saturate(.6)}
 .leaflet-tooltip{background:#152342;color:#f6f3ea;border:1px solid rgba(217,180,90,.4);font-weight:600}
 .leaflet-control-attribution{background:rgba(10,18,36,.7)!important;color:#8892ad!important}.leaflet-control-attribution a{color:#d9b45a!important}
 .pin{width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--c);display:grid;place-items:center;border:2px solid #0a1224;box-shadow:0 4px 12px rgba(0,0,0,.5)}
@@ -354,7 +355,7 @@ function rHarita(){
   if(!LM){
     V.innerHTML=`${sec("Şehir","Harita","")}<div class="chips" id="mdays"></div><div id="lmap"></div><div class="legend" id="mleg"></div><div id="mapcard"></div>`;
     LM=L.map("lmap",{zoomControl:false,attributionControl:true}).setView([40.735,-73.985],12);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:19,attribution:"© OpenStreetMap · © CARTO"}).addTo(LM);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(LM);
     L.control.zoom({position:"bottomright"}).addTo(LM);
     LL=L.layerGroup().addTo(LM);
   }
@@ -372,7 +373,7 @@ function rHarita(){
     L.marker(ll,{icon:ic}).addTo(LL).on("click",()=>{mapSel=it.id;$("#mapcard").innerHTML=card(it);$("#mapcard").scrollIntoView({behavior:"smooth",block:"start"})}).bindTooltip(esc(it.title),{direction:"top",offset:[0,-16]});
   });
   if(mapDay!=="all"&&mapDay!=="plan"&&pts.length>1)L.polyline(pts,{color:"#d9b45a",weight:2.5,opacity:.8,dashArray:"6 6"}).addTo(LL);
-  if(pts.length&&mapDay!=="all")LM.fitBounds(pts,{padding:[40,40],maxZoom:15});
+  if(pts.length&&(mapDay!=="all"||!LM._fitOnce)){LM.fitBounds(pts,{padding:[30,30],maxZoom:15});LM._fitOnce=true}
   const used=[...new Set(list.map(i=>i.cat))].filter(c=>CATS[c]);
   $("#mleg").innerHTML=used.map(c=>`<span><i style="background:${CATS[c].dot}"></i>${CATS[c].n}</span>`).join("")+`<span><i style="background:#4fd69c"></i>İkiniz de</span>`;
   const sel=items.find(i=>i.id===mapSel);
