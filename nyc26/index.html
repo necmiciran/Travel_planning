@@ -452,7 +452,7 @@ $("#codego").addEventListener("click",()=>{const v=$("#codein").value.trim();if(
 /* ---------- boot ---------- */
 function boot(){
   const u=new URLSearchParams(location.search);if(u.get("k")){K=u.get("k");ls("nyc_k",K);history.replaceState(null,"",location.pathname)}
-  K=K||ls("nyc_k")||"nyc-305de818";ME=ls("nyc_me")||null;
+  K=K||ls("nyc_k")||null;ME=ls("nyc_me")||null;
   if(!K||!ME)gate();else $("#gate").classList.remove("on");
   render();if(K){load();clearInterval(window._p);window._p=setInterval(load,10000)}
 }
