@@ -1,0 +1,961 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NYC '26">
+<title>NYC Kış '26 · Necmi & Ahmet</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --paper:#f2eee4;--paper2:#e9e4d6;--card:#fbfaf6;--ink:#121212;--ink2:#2b2a27;--mute:#6f6a5f;--line:#d8d1bf;--line2:#c9c0a9;
+  --red:#e1251b;--green:#00933c;--blue:#0039a6;--yellow:#fccc0a;--orange:#ff6319;--purple:#b933ad;--brown:#996633;--lime:#6cbe45;
+  --sign:#121212;--signText:#f2eee4;
+  --safeT:env(safe-area-inset-top,0px);--safeB:env(safe-area-inset-bottom,0px);
+  --f:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;--m:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.35}
+body{padding-bottom:calc(66px + var(--safeB));overscroll-behavior-y:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+a{color:inherit}
+input,textarea,select{font:inherit;color:inherit}
+.c{font-stretch:75%}.cc{font-stretch:62%}.w{font-stretch:112%}
+.mono{font-family:var(--m)}
+.up{text-transform:uppercase;letter-spacing:.06em}
+.hide{display:none!important}
+
+/* ---------- Station sign header ---------- */
+.sign{position:sticky;top:0;z-index:1040;background:var(--sign);color:var(--signText);padding:calc(8px + var(--safeT)) 14px 10px}
+.sign:before{content:"";position:absolute;left:0;right:0;top:calc(var(--safeT) + 3px);height:3px;background:var(--signText);opacity:.95}
+.signrow{display:flex;align-items:center;gap:10px;margin-top:6px}
+.signrow .tt{flex:1;min-width:0}
+.sign h1{margin:0;font-size:25px;font-weight:850;font-stretch:72%;letter-spacing:-.01em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sign .sub{font-size:11.5px;font-weight:600;opacity:.75;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.bul{display:inline-grid;place-items:center;border-radius:50%;font-weight:800;font-stretch:90%;flex:none;line-height:1}
+.sign .logo{width:38px;height:38px;background:var(--red);color:#fff;font-size:15px;font-stretch:100%}
+.cd{text-align:right;flex:none}
+.cd b{display:block;font-family:var(--m);font-size:22px;line-height:1}
+.cd span{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.sbtns{display:flex;gap:6px;margin-top:9px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:14px;border:1px solid rgba(242,238,228,.28);font-size:12.5px;font-weight:650;white-space:nowrap}
+.pill .dot{width:16px;height:16px;font-size:10px}
+.pill.me{background:var(--signText);color:var(--ink);border-color:var(--signText)}
+.pill.warn{border-color:var(--yellow);color:var(--yellow)}
+.sbtns .sp{flex:1}
+#net{background:var(--yellow);color:#111;font-size:12.5px;font-weight:700;text-align:center;padding:5px 10px}
+
+/* ---------- Bottom tabs ---------- */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:1050;background:var(--sign);color:var(--signText);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + var(--safeB))}
+nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.55;position:relative;padding:2px 0}
+nav.tabs button .ti{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:850;background:#2a2a2a;color:#fff}
+nav.tabs button.on{opacity:1}
+nav.tabs button.on .ti{background:var(--signText);color:var(--ink)}
+nav.tabs .badge{position:absolute;top:0;left:calc(50% + 8px);min-width:16px;height:16px;border-radius:8px;background:var(--red);color:#fff;font-size:10px;display:grid;place-items:center;padding:0 4px;font-family:var(--m)}
+
+main{padding:0 0 20px}
+.wrap{padding:0 14px}
+h2.sec{margin:22px 14px 10px;font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+h2.sec:after{content:"";flex:1;height:2px;background:var(--ink)}
+h2.sec small{font-family:var(--m);font-size:11px;letter-spacing:0;color:var(--mute);font-weight:500}
+
+/* ---------- Day strip (stations) ---------- */
+.strip{position:relative;display:flex;overflow-x:auto;scrollbar-width:none;padding:16px 10px 6px;background:var(--paper2);border-bottom:1px solid var(--line)}
+.strip::-webkit-scrollbar{display:none}
+.strip .rail{position:absolute;left:30px;right:30px;top:28px;height:5px;background:var(--ink)}
+.st{position:relative;flex:1 0 54px;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:1}
+.st i{width:20px;height:20px;border-radius:50%;background:var(--card);border:4px solid var(--ink)}
+.st.on i{background:var(--day);border-color:var(--ink);transform:scale(1.25)}
+.st.today i:after{content:"";display:block;width:6px;height:6px;margin:3px auto;border-radius:50%;background:var(--ink)}
+.st b{font-size:17px;font-weight:850;font-stretch:80%;line-height:1}
+.st span{font-size:9.5px;font-weight:700;letter-spacing:.08em;color:var(--mute)}
+.st.on b{color:var(--ink)}
+.st em{position:absolute;top:-12px;font-style:normal;font-size:9px;font-weight:800;letter-spacing:.06em;color:var(--red);text-transform:uppercase;white-space:nowrap}
+
+/* ---------- Day header ---------- */
+.dayh{display:flex;align-items:flex-end;gap:12px;padding:16px 14px 6px}
+.dayh .big{width:54px;height:54px;font-size:22px;background:var(--day);color:var(--dayT);border:3px solid var(--ink)}
+.dayh h3{margin:0;font-size:24px;font-weight:850;font-stretch:72%;line-height:1}
+.dayh p{margin:3px 0 0;color:var(--mute);font-size:12.5px}
+.dact{display:flex;gap:6px;padding:4px 14px 2px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1.5px solid var(--ink);border-radius:3px;font-weight:750;font-size:13px;background:var(--card);text-decoration:none;white-space:nowrap}
+.btn.k{background:var(--ink);color:var(--paper)}
+.btn.r{background:var(--red);border-color:var(--red);color:#fff}
+.btn.g{background:var(--green);border-color:var(--green);color:#fff}
+.btn.s{height:28px;padding:0 9px;font-size:12px}
+.btn[disabled]{opacity:.4}
+
+/* ---------- Timeline (line map) ---------- */
+.line{position:relative;margin:10px 14px 0;padding-left:0}
+.stop,.leg,.gap{position:relative;display:grid;grid-template-columns:50px 26px 1fr;align-items:start}
+.line:before{content:"";position:absolute;left:61px;top:10px;bottom:10px;width:8px;background:var(--day);border-left:1.5px solid rgba(0,0,0,.25);border-right:1.5px solid rgba(0,0,0,.25)}
+.stop .tm{font-family:var(--m);font-size:13.5px;font-weight:700;padding-top:9px;text-align:right;padding-right:8px}
+.stop .nd{position:relative;z-index:1;width:22px;height:22px;margin:7px 0 0 4px;border-radius:50%;background:#fff;border:4px solid var(--ink)}
+.stop.exp .nd{background:var(--ink)}
+.stop.ok .nd{background:var(--green);border-color:var(--ink)}
+.bw{position:relative}.more{position:absolute;right:6px;top:8px;z-index:2;width:30px;height:30px;border-radius:50%;font-size:18px;font-weight:900;line-height:1;background:var(--paper2);color:var(--ink)}
+.stop .bx{padding-right:40px!important;margin:3px 0 4px 6px;background:var(--card);border:1.5px solid var(--ink);border-radius:3px;padding:8px 10px 9px;display:flex;gap:10px;align-items:flex-start;text-align:left;width:calc(100% - 6px)}
+.stop .bx .ph{width:48px;height:48px;flex:none;border-radius:2px;background:#ddd center/cover}
+.bx .tx{flex:1;min-width:0}
+.bx .tx b{display:block;font-size:15.5px;font-weight:780;font-stretch:88%;line-height:1.15}
+.bx .tx small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.tag{font-size:10.5px;font-weight:750;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:2px;background:var(--paper2);color:var(--ink2);white-space:nowrap}
+.tag.ok{background:var(--green);color:#fff}.tag.need{background:var(--orange);color:#fff}.tag.both{background:#d9f2df;color:#0b5a26}
+.tag.urg{background:var(--red);color:#fff}.tag.ar{background:#ddd;color:#555}.tag.by{background:#e6ecfa;color:var(--blue)}.tag.taste{background:#fff1c2;color:#7a5a00}
+.leg{min-height:26px;color:var(--mute);font-size:12px}
+.leg .lx{grid-column:3;margin-left:8px;padding:3px 0 5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.leg a{text-decoration:none;border-bottom:1px dotted var(--mute);color:var(--ink2);font-weight:650}
+.gap .gx{grid-column:3;margin:2px 0 6px 6px;border:1.5px dashed var(--line2);border-radius:3px;padding:8px 10px;font-size:13px;background:rgba(255,255,255,.35)}
+.gap .gx b{font-weight:780}
+.gap .gx .sg{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.sgb{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;border:1px solid var(--line2);border-radius:14px;padding:4px 9px;background:var(--card)}
+.sgb .bul{width:16px;height:16px;font-size:9px}
+.endst{display:grid;grid-template-columns:50px 26px 1fr;align-items:center;margin-top:2px}
+.endst .nd{width:22px;height:22px;margin-left:4px;border-radius:3px;background:var(--ink);position:relative;z-index:1}
+.endst span{margin-left:8px;font-size:12px;color:var(--mute);font-weight:650}
+.empty{margin:16px 14px;padding:16px;border:1.5px dashed var(--line2);border-radius:3px;color:var(--mute);text-align:center;font-size:13.5px}
+
+/* ---------- Alerts / banners ---------- */
+.alert{margin:12px 14px 0;background:var(--ink);color:var(--paper);border-radius:3px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;text-align:left;width:calc(100% - 28px)}
+.alert .ai{font-size:18px;line-height:1}
+.alert b{display:block;font-size:13.5px;font-weight:800}
+.alert span{font-size:12.5px;opacity:.85}
+.alert.y{background:var(--yellow);color:#111}
+
+/* ---------- Rows / lists ---------- */
+.list{margin:0 14px;border-top:1.5px solid var(--ink)}
+.row{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);text-align:left;width:100%}
+.row .bul{width:30px;height:30px;font-size:14px}
+.row .ph{width:56px;height:56px;flex:none;border-radius:2px;background:#ccc center/cover;position:relative}
+.row .ph .bul{position:absolute;right:-6px;bottom:-6px;width:22px;height:22px;font-size:11px;border:2px solid var(--paper)}
+.row .tx{flex:1;min-width:0}
+.row .tx b{display:block;font-size:15px;font-weight:760;font-stretch:88%;line-height:1.15}
+.row .tx small{display:block;color:var(--mute);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .pr{font-family:var(--m);font-size:11.5px;font-weight:700;color:var(--ink2);margin-top:3px}
+.vq{display:flex;gap:4px;flex:none}
+.vq button{width:34px;height:34px;border:1.5px solid var(--line2);border-radius:3px;font-size:15px;background:var(--card);display:grid;place-items:center}
+.vq button.on.up{background:var(--green);border-color:var(--green)}
+.vq button.on.dn{background:#bbb;border-color:#999}
+.who{display:flex;gap:2px;margin-top:4px}
+.who i{font-style:normal;font-size:10px;font-weight:800;padding:1px 5px;border-radius:2px;background:var(--paper2);color:var(--mute)}
+.who i.l{background:#d9f2df;color:#0b5a26}.who i.d{background:#eee;color:#999;text-decoration:line-through}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:12px 14px 2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:30px;padding:0 11px;border:1.5px solid var(--ink);border-radius:15px;font-size:12.5px;font-weight:750;background:var(--card);white-space:nowrap}
+.chip.on{background:var(--ink);color:var(--paper)}
+.search{margin:12px 14px 0;display:flex;align-items:center;gap:8px;border:1.5px solid var(--ink);border-radius:3px;background:var(--card);padding:0 10px;height:40px}
+.search input{flex:1;border:0;background:none;outline:none;font-size:15px}
+details.grp{margin:0 0 4px}
+details.grp>summary{list-style:none;display:flex;align-items:center;gap:10px;padding:14px 14px 10px;cursor:pointer}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary .bul{width:30px;height:30px;font-size:14px}
+details.grp>summary b{flex:1;font-size:18px;font-weight:850;font-stretch:75%;text-transform:uppercase;letter-spacing:.01em}
+details.grp>summary small{font-family:var(--m);font-size:11.5px;color:var(--mute)}
+details.grp>summary:after{content:"+";font-weight:800;font-size:20px;width:20px;text-align:center}
+details.grp[open]>summary:after{content:"–"}
+
+/* ---------- Progress ---------- */
+.prog{margin:14px 14px 4px;border:1.5px solid var(--ink);border-radius:3px;background:var(--card);padding:10px 12px}
+.prog .bar{height:10px;background:var(--paper2);border-radius:2px;overflow:hidden;margin-top:7px}
+.prog .bar i{display:block;height:100%;background:var(--green)}
+.prog b{font-size:15px;font-weight:800}
+.prog small{color:var(--mute);font-size:12px}
+.rv{border-bottom:1px solid var(--line);padding:11px 0}
+.rv .top{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%}
+.rv .bk{font-size:12.5px;color:var(--ink2);margin:6px 0 0 40px;padding:6px 8px;background:var(--paper2);border-left:3px solid var(--orange)}
+.rv .acts{display:flex;gap:6px;margin:8px 0 0 40px;flex-wrap:wrap}
+
+/* ---------- Map ---------- */
+#mapwrap{position:relative}
+#lmap{height:calc(100vh - 230px - var(--safeT) - var(--safeB));min-height:360px;background:#e5e0d2}
+.leaflet-container{font-family:var(--f)}
+.mk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:850;font-size:12px;border:2.5px solid #121212;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.mk.n{border-radius:4px}
+.mk.me{background:#1a73e8;border-color:#fff;width:18px;height:18px}
+.mk.ht{background:#121212;color:#fff;border-color:#fff;border-radius:4px}
+.leaflet-popup-content-wrapper{border-radius:3px;border:1.5px solid #121212;box-shadow:none}
+.leaflet-popup-content{margin:10px 12px;font-size:13px}
+.pp b{display:block;font-size:15px;font-weight:800;font-stretch:85%}
+.pp small{color:var(--mute)}
+.pp .dl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pp .dl a,.pp .dl button{font-size:12px;font-weight:750;border:1.5px solid #121212;border-radius:3px;padding:4px 7px;text-decoration:none;background:#fff}
+.mtools{position:absolute;right:10px;top:10px;z-index:900;display:flex;flex-direction:column;gap:6px}
+.mtools button{width:40px;height:40px;border-radius:3px;background:var(--card);border:1.5px solid var(--ink);font-size:17px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;padding:8px 14px;font-size:11.5px;color:var(--mute)}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend .bul{width:14px;height:14px;font-size:8px}
+
+/* ---------- Chat ---------- */
+.chat{padding:10px 14px 120px}
+.msg{max-width:86%;margin:8px 0;padding:9px 11px;border-radius:3px;font-size:14.5px;white-space:pre-wrap;word-wrap:break-word}
+.msg .mh{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;opacity:.7}
+.msg.me{margin-left:auto;background:var(--ink);color:var(--paper)}
+.msg.ot{background:var(--card);border:1.5px solid var(--ink)}
+.msg.cl{background:#fff8de;border:1.5px solid #d9b500;max-width:94%}
+.msg .pend{font-size:11px;opacity:.7}
+.composer{position:fixed;left:0;right:0;bottom:calc(62px + var(--safeB));z-index:1045;background:var(--paper);border-top:1.5px solid var(--ink);padding:8px 10px;display:flex;gap:8px}
+.composer textarea{flex:1;resize:none;height:42px;max-height:120px;border:1.5px solid var(--ink);border-radius:3px;padding:10px;background:var(--card);font-size:15px;outline:none}
+.hint{font-size:12px;color:var(--mute);padding:8px 14px 0}
+
+/* ---------- Sheet ---------- */
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1090;opacity:0;pointer-events:none;transition:opacity .2s}
+#scrim.on{opacity:1;pointer-events:auto}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:1100;max-height:92vh;background:var(--paper);border-top:4px solid var(--ink);border-radius:8px 8px 0 0;transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-bottom:var(--safeB)}
+#sheet.on{transform:none}
+#sheet .grab{display:flex;justify-content:space-between;align-items:center;padding:8px 12px 6px}
+#sheet .grab i{width:40px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto}
+#sheet .x{width:34px;height:34px;border:1.5px solid var(--ink);border-radius:50%;font-size:16px;font-weight:800;flex:none}
+#sbody{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 calc(40px + var(--safeB))}
+.gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:2px;height:230px;scrollbar-width:none;background:#222}
+.gal::-webkit-scrollbar{display:none}
+.gal img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:start}
+.galc{font-family:var(--m);font-size:11px;color:var(--mute);padding:4px 14px 0}
+.hero{display:flex;gap:12px;align-items:center;padding:6px 14px 4px}
+.hero .bul{width:52px;height:52px;font-size:22px;border:3px solid var(--ink)}
+.dt{padding:8px 14px 0}
+.dt .cat{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.dt h3{margin:3px 0 0;font-size:26px;font-weight:850;font-stretch:72%;line-height:1.02}
+.dt .sb{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.dt p{font-size:14.5px;line-height:1.45;margin:10px 0 0}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 14px 0;border-top:1.5px solid var(--ink)}
+.facts div{padding:8px 8px 8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.facts div.wide{grid-column:1/-1}
+.facts small{display:block;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.facts .mono{font-size:13px}
+.vbig{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 14px 0}
+.vbig button{height:46px;border:1.5px solid var(--ink);border-radius:3px;font-weight:800;font-size:15px;background:var(--card)}
+.vbig button.on.up{background:var(--green);color:#fff;border-color:var(--green)}
+.vbig button.on.dn{background:#777;color:#fff;border-color:#777}
+.ov{margin:6px 14px 0;font-size:12.5px;color:var(--mute)}
+.acts2{display:flex;flex-wrap:wrap;gap:6px;margin:12px 14px 0}
+.plbox{margin:14px 14px 0;padding:10px;border:1.5px solid var(--ink);border-radius:3px;background:var(--card);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.plbox label{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);width:100%}
+.plbox select,.plbox input{height:36px;border:1.5px solid var(--ink);border-radius:3px;background:#fff;padding:0 8px;font-size:14px}
+.notes{margin:16px 14px 0}
+.notes h4{margin:0 0 6px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.note{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.note .av{width:24px;height:24px;font-size:11px;color:#fff;flex:none}
+.note .nt{flex:1;font-size:14px;white-space:pre-wrap}
+.note .nt small{display:block;color:var(--mute);font-size:11px;margin-top:2px}
+.note .del{font-size:12px;color:var(--mute)}
+.nform{display:flex;gap:6px;margin-top:8px}
+.nform textarea{flex:1;height:40px;resize:none;border:1.5px solid var(--ink);border-radius:3px;padding:9px;background:var(--card);font-size:14.5px;outline:none}
+.gd{margin:0 14px}
+.gd details{border-bottom:1px solid var(--line)}
+.gd summary{list-style:none;display:flex;gap:10px;align-items:center;padding:12px 0;font-weight:800;font-size:16px;font-stretch:85%}
+.gd summary::-webkit-details-marker{display:none}
+.gd summary .ic{font-size:18px}
+.gd ul{margin:0 0 12px;padding-left:20px}
+.gd li{margin:6px 0;font-size:14px;line-height:1.4}
+.pick .row{padding:8px 0}
+
+#toast{position:fixed;left:12px;right:12px;bottom:calc(76px + var(--safeB));z-index:1200;visibility:hidden;opacity:0;transition:opacity .2s,transform .25s,visibility .25s;background:var(--ink);color:var(--paper);border-radius:3px;padding:11px 13px;font-size:13.5px;font-weight:600;transform:translateY(150%);transition:transform .25s;border-left:5px solid var(--yellow)}
+#toast.on{transform:none;visibility:visible;opacity:1}
+
+/* ---------- Gate ---------- */
+#gate{position:fixed;inset:0;z-index:1300;background:var(--sign);color:var(--signText);display:none;flex-direction:column;justify-content:center;padding:30px 24px calc(30px + var(--safeB))}
+#gate.on{display:flex}
+#gate:before{content:"";position:absolute;left:0;right:0;top:calc(var(--safeT) + 18px);height:4px;background:var(--signText)}
+#gate h1{font-size:44px;font-weight:900;font-stretch:65%;line-height:.95;margin:16px 0 8px}
+#gate p{opacity:.75;margin:0 0 22px}
+#gate .who{display:grid;gap:10px;margin:0}
+#gate .who button{height:60px;border:2px solid var(--signText);border-radius:3px;font-size:20px;font-weight:850;font-stretch:80%;display:flex;align-items:center;gap:12px;padding:0 14px;text-align:left}
+#gate .who .bul{width:34px;height:34px;font-size:15px;color:#fff}
+#gate input{width:100%;height:50px;border-radius:3px;border:2px solid var(--signText);background:transparent;color:var(--signText);padding:0 12px;font-size:17px;margin-bottom:10px;font-family:var(--m)}
+.snow{position:absolute;inset:0;pointer-events:none;overflow:hidden;opacity:.55}
+@media (min-width:700px){body{max-width:560px;margin:0 auto;box-shadow:0 0 0 1px var(--line)}nav.tabs,.composer,#sheet{max-width:560px;margin:0 auto}}
+</style>
+</head>
+<body>
+<div id="gate"></div>
+<header class="sign" id="sign"></header>
+<div id="net" class="hide"></div>
+<main id="view"></main>
+<div class="composer hide" id="composer"><textarea id="cin" placeholder="Ne sevebiliriz? Claude araştırsın…" rows="1"></textarea><button class="btn k" id="csend">Gönder</button></div>
+<nav class="tabs" id="tabs"></nav>
+<div id="scrim"></div>
+<div id="sheet"><div class="grab"><span style="width:34px"></span><i></i><button class="x" id="sx" aria-label="Kapat">✕</button></div><div id="sbody"></div></div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+"use strict";
+const SB="https://qbvsboendmzpkudbchaf.supabase.co",KEY="sb_publishable_iIcN6U9ibLZ_FBXEY2IXGQ_-45R1TWp";
+const VAPID="BErBsQsC9K3zW0g6dR_CET94Iwx4ih0kuggx8QzUCezKpRpgCZvsfoz0aZ12FlKoUhOCCnYPbNUUxPUO4SPlUYM";
+const PPL={necmi:{n:"Necmi",c:"#e1251b",l:"N"},ahmet:{n:"Ahmet",c:"#0039a6",l:"A"}};
+const CAT={
+ otel:{n:"Konaklama",l:"H",c:"#808183",t:"#fff"},
+ ozel:{n:"Özel gece",l:"★",c:"#e1251b",t:"#fff"},
+ caz:{n:"Caz",l:"J",c:"#fccc0a",t:"#121212"},
+ broadway:{n:"Broadway",l:"B",c:"#ff6319",t:"#fff"},
+ sahne:{n:"Sahne",l:"S",c:"#b933ad",t:"#fff"},
+ yemek:{n:"Yemek",l:"Y",c:"#ee352e",t:"#fff"},
+ manzara:{n:"Manzara",l:"V",c:"#0039a6",t:"#fff"},
+ muze:{n:"Müze",l:"M",c:"#00933c",t:"#fff"},
+ deneyim:{n:"Deneyim",l:"E",c:"#6cbe45",t:"#121212"},
+ alisveris:{n:"Alışveriş",l:"$",c:"#00add0",t:"#fff"},
+ ucus:{n:"Uçuş",l:"✈",c:"#121212",t:"#fff"}};
+const DAYS=[
+ ["2026-12-25","CUM","Cuma","Noel","#ee352e","#fff"],
+ ["2026-12-26","CMT","Cumartesi","","#ff6319","#fff"],
+ ["2026-12-27","PAZ","Pazar","","#fccc0a","#121212"],
+ ["2026-12-28","PZT","Pazartesi","","#00933c","#fff"],
+ ["2026-12-29","SAL","Salı","","#0039a6","#fff"],
+ ["2026-12-30","ÇAR","Çarşamba","Eve","#b933ad","#fff"],
+ ["2026-12-31","PER","Perşembe","Yılbaşı","#996633","#fff"],
+ ["2027-01-01","CUM","Cuma","Dönüş","#6cbe45","#121212"]];
+const AY=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+const GROUPS=[
+ ["otel","Konaklama","otel",it=>it.cat==="otel"],
+ ["ozel","Özel geceler · 25 / 30 / 31","ozel",it=>it.cat==="ozel"||it.grp==="nye"||it.grp==="xmas-dinner"],
+ ["caz","Caz kulüpleri","caz",it=>it.cat==="caz"],
+ ["bw","Broadway & sahne","broadway",it=>it.cat==="broadway"||it.cat==="sahne"],
+ ["taste","New York'ta mutlaka ye","yemek",it=>it.cat==="yemek"&&it.taste],
+ ["rest","Restoranlar","yemek",it=>it.cat==="yemek"],
+ ["manzara","Manzaralar","manzara",it=>it.cat==="manzara"],
+ ["muze","Müzeler","muze",it=>it.cat==="muze"],
+ ["shop","Alışveriş · outlet, mağaza, teknoloji","alisveris",it=>it.cat==="alisveris"],
+ ["deneyim","Deneyimler","deneyim",it=>it.cat==="deneyim"],
+ ["ucus","Uçuşlar","ucus",it=>it.cat==="ucus"]];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){return null}}
+const qs=new URLSearchParams(location.search);
+let K=qs.get("k")||ls("nyc_k");if(qs.get("k"))ls("nyc_k",qs.get("k"));
+let ME=ls("nyc_me");
+const OTHER=()=>ME==="necmi"?"ahmet":"necmi";
+let S=null,I={},V={necmi:{},ahmet:{}};
+let tab=(location.hash||"").slice(1)||ls("nyc_tab")||"hat";
+if(!["hat","rez","kesfet","harita","sohbet"].includes(tab))tab="hat";
+let selDay=null,kFilter="all",kQuery="",mapDay=ls("nyc_mday")||"all",sheetFor=null;
+let OB=[];try{OB=JSON.parse(ls("nyc_ob")||"[]")}catch(e){OB=[]}
+let seen={};try{seen=JSON.parse(ls("nyc_seen2")||"{}")}catch(e){}
+if(!seen.k){seen.k=+(ls("nyc_seen")||0)||Date.now();seen.c=+(ls("nyc_chat")||0)||Date.now();ls("nyc_seen2",JSON.stringify(seen))}
+
+/* ---------- data ---------- */
+async function rpc(fn,args){
+  const r=await fetch(SB+"/rest/v1/rpc/"+fn,{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify(args)});
+  if(!r.ok){const e=new Error("http "+r.status);e.http=r.status;throw e}
+  const t=await r.text();return t?JSON.parse(t):null;
+}
+function norm(s){
+  S=Object.assign({items:[],votes:[],plan:{},ptime:{},booked:{},archive:{},notes:[],expenses:[],chat:[],meta:{}},s||{});
+  for(const k of["plan","ptime","booked","archive","meta"])S[k]=S[k]||{};
+  I={};for(const it of S.items)I[it.id]=it;
+  V={necmi:{},ahmet:{}};for(const v of S.votes)if(V[v.p])V[v.p][v.i]=v.v;
+}
+function saveOB(){ls("nyc_ob",JSON.stringify(OB))}
+let flushing=false;
+async function flush(){
+  if(flushing||!OB.length)return;flushing=true;
+  try{while(OB.length){
+    try{await rpc(OB[0][0],OB[0][1])}catch(e){if(e.http){toast("Kaydedilemedi ("+e.http+")");}else{break}}
+    OB.shift();saveOB();
+  }}finally{flushing=false;netState()}
+}
+function send(fn,args){OB.push([fn,Object.assign({k:K},args)]);saveOB();netState();flush().then(()=>{if(!OB.length)setTimeout(load,400)})}
+let loading=false;
+async function load(){
+  if(!K||loading)return;loading=true;
+  try{
+    await flush();
+    if(OB.length){loading=false;return}
+    const s=await rpc("trip_state",{k:K});
+    ls("nyc_state",JSON.stringify(s));norm(s);
+    online(true);detectNew();renderSoft();
+  }catch(e){
+    if(e.http===400||e.http===401){ls("nyc_k",null);K=null;gate();}
+    else online(false);
+  }finally{loading=false}
+}
+let isOn=navigator.onLine;
+function online(v){isOn=v;netState()}
+function netState(){
+  const n=$("#net");
+  if(!isOn||!navigator.onLine){n.textContent="📴 Çevrimdışısın: kayıtlı son hâli görüyorsun"+(OB.length?" · "+OB.length+" değişiklik bağlanınca gönderilecek":"");n.classList.remove("hide")}
+  else if(OB.length){n.textContent="⏳ "+OB.length+" değişiklik gönderiliyor…";n.classList.remove("hide")}
+  else n.classList.add("hide");
+}
+addEventListener("online",()=>{isOn=true;load()});addEventListener("offline",()=>online(false));
+
+/* ---------- helpers ---------- */
+const vote=(p,id)=>(V[p]||{})[id]||0;
+const mv=id=>vote(ME,id),ov=id=>vote(OTHER(),id);
+const both=id=>vote("necmi",id)===1&&vote("ahmet",id)===1;
+const anyLike=id=>vote("necmi",id)===1||vote("ahmet",id)===1;
+function isDate(s){return /^\d{4}-\d\d-\d\d$/.test(s||"")}
+function dayOf(it){const p=S.plan[it.id];if(p==="-")return null;return p||(isDate(it.when)?it.when:null)}
+function timeOf(it){return S.ptime[it.id]||it.time||""}
+function tmin(t){const m=/^(\d{1,2}):(\d\d)/.exec(t||"");return m?(+m[1])*60+(+m[2]):null}
+function durMin(it){const d=it.dur;if(typeof d==="number")return d;const s=String(d||"");let m=/(\d+(?:[.,]\d+)?)\s*s/.exec(s);if(m)return Math.round(parseFloat(m[1].replace(",","."))*60);m=/(\d+)\s*dk/.exec(s);if(m)return +m[1];return({otel:0,yemek:75,caz:120,broadway:165,sahne:120,muze:150,manzara:75,deneyim:90,ozel:180,ucus:60,alisveris:120})[it.cat]||90}
+function needsBook(it){if(!it.book)return false;if(it.cat==="ucus")return false;return !/rezervasyon yok|gerekmez|gerek yok|^yok/i.test(it.book)}
+function archInfo(it){
+  if(S.booked[it.id])return null;
+  const a=S.archive[it.id];if(a)return{r:a.r||"Arşive alındı",manual:true};
+  if(it.grp){const b=S.items.find(x=>x.grp===it.grp&&x.id!==it.id&&S.booked[x.id]);if(b)return{r:b.title.split("·")[0].trim()+" alındı",auto:true}}
+  if(vote("necmi",it.id)===-1&&vote("ahmet",it.id)===-1)return{r:"İkiniz de geçtiniz",auto:true};
+  return null;
+}
+function grpChosen(g){return S.items.find(x=>x.grp===g&&(S.booked[x.id]||both(x.id)||(g!=="otel"&&(x.by==="necmi"||x.by==="ahmet"))))}
+function isAlt(it){if(!it.grp||S.booked[it.id])return false;const c=grpChosen(it.grp);return !!(c&&c.id!==it.id)}
+function score(it){return (vote("necmi",it.id)+vote("ahmet",it.id))*2+(both(it.id)?2:0)+(it.must?1.5:0)+(it.urgent?.5:0)+(S.booked[it.id]?5:0)}
+function fmtDay(d,short){const x=DAYS.find(z=>z[0]===d);if(!x){if(!isDate(d))return d||"";const [y,m,g]=d.split("-");return (+g)+" "+AY[+m-1]}const g=+d.slice(8),m=+d.slice(5,7);return short?g+" "+AY[m-1].slice(0,3):g+" "+AY[m-1]+" "+x[2]}
+function bul(cat,size){const C=CAT[cat]||CAT.deneyim;return `<span class="bul" style="background:${C.c};color:${C.t}${size?`;width:${size}px;height:${size}px`:""}">${C.l}</span>`}
+function photo(it){return it.photos&&it.photos.length?it.photos[0]:null}
+function hav(a,b){const R=6371,r=x=>x*Math.PI/180;const dl=r(b.lat-a.lat),dg=r(b.lng-a.lng);const h=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dg/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+const hasLL=it=>it&&typeof it.lat==="number"&&typeof it.lng==="number";
+function legInfo(a,b){const km=hav(a,b)*1.3;return{km,walk:Math.max(1,Math.round(km*1000/80)),transit:Math.round(8+km*1000/330),car:Math.round(5+km*1000/250)}}
+function gm(o,d,mode){const dst=hasLL(d)?d.lat+","+d.lng:encodeURIComponent((d.title||"")+" "+(d.addr||"")+" New York");return "https://www.google.com/maps/dir/?api=1"+(o&&hasLL(o)?"&origin="+o.lat+","+o.lng:"")+"&destination="+dst+"&travelmode="+mode}
+function gsearch(it){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((it.title||"").split("·")[0]+" "+(it.addr||"")+" New York")}
+function km(x){return x<1?Math.round(x*1000)+" m":x.toFixed(1).replace(".",",")+" km"}
+function hotel(){
+  const hs=S.items.filter(x=>x.cat==="otel");
+  return hs.find(h=>S.booked[h.id])||hs.find(h=>both(h.id))||null;
+}
+function calUrl(it){
+  const d=dayOf(it);if(!d)return null;const t=timeOf(it)||"19:00";const m=tmin(t);
+  const st=d.replace(/-/g,"")+"T"+t.replace(":","")+"00";const em=m+durMin(it);const ed=new Date(Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8),0,em));
+  const e2=ed.toISOString().replace(/[-:]/g,"").slice(0,15);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&ctz=America/New_York&text="+encodeURIComponent(it.title)+"&dates="+st+"/"+e2+"&location="+encodeURIComponent(it.addr||it.area||"")+"&details="+encodeURIComponent((it.desc||"").slice(0,600))}
+function nyNow(){const s=new Date().toLocaleString("en-CA",{timeZone:"America/New_York",hour12:false});return{d:s.slice(0,10),t:s.slice(12,17)}}
+function ago(ts){const s=(Date.now()-ts)/1000;if(s<60)return"şimdi";if(s<3600)return Math.floor(s/60)+" dk";if(s<86400)return Math.floor(s/3600)+" sa";return Math.floor(s/86400)+" g"}
+function toast(t){const n=$("#toast");n.textContent=t;n.classList.add("on");clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove("on"),4200)}
+
+/* ---------- actions ---------- */
+function doVote(i,v){const cur=mv(i);const nv=cur===v?0:v;V[ME][i]=nv;S.votes=S.votes.filter(x=>!(x.p===ME&&x.i===i));if(nv)S.votes.push({p:ME,i,v:nv});send("trip_vote",{p:ME,i,val:nv});if(nv===1&&ov(i)===1)toast("💚 İkiniz de beğendiniz: "+I[i].title);renderSoft()}
+function doBook(i){const on=!S.booked[i];if(on)S.booked[i]=ME;else delete S.booked[i];send("trip_booked",{i,p:ME,b:on});
+  if(on){const it=I[i];let n=0;if(it.grp)n=S.items.filter(x=>x.grp===it.grp&&x.id!==i&&!S.booked[x.id]).length;toast("✓ Alındı olarak işaretlendi"+(n?" · aynı gruptaki "+n+" seçenek arşive taşındı":""));renderSoft();setTimeout(()=>openExpense({item:i}),350);return}
+  renderSoft()}
+function doArchive(i,on){if(on)S.archive[i]={by:ME,r:"Arşive alındı"};else delete S.archive[i];send("trip_archive",{i,p:ME,a:on,r:on?"Arşive alındı":null});toast(on?"Arşive alındı":"Arşivden çıkarıldı");renderSoft()}
+function doPlan(i,d,t){const it=I[i];if(!d&&it&&isDate(it.when))d="-";if(d){S.plan[i]=d;if(t)S.ptime[i]=t}else{delete S.plan[i];delete S.ptime[i]}send("trip_plan2",{i,d:d||"",t:t||null,p:ME});renderSoft()}
+function unplan(i){doPlan(i,"");toast("Programdan çıkarıldı")}
+function replaceStop(oldId,newId){const o=I[oldId];const d=dayOf(o),t=timeOf(o);doPlan(newId,d,t);doPlan(oldId,"");toast("⇄ "+I[newId].title.split("·")[0].trim()+" ile değiştirildi");closeSheet()}
+async function geocode(q){try{const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&viewbox=-74.26,40.92,-73.70,40.49&bounded=1&q="+encodeURIComponent(q));const j=await r.json();if(j&&j[0])return{lat:+j[0].lat,lng:+j[0].lon}}catch(e){}return null}
+async function addCustom(d){
+  const title=$("#ctitle").value.trim();if(!title)return toast("Bir başlık yazın");
+  const t=$("#ctime").value||null,cat=$("#ccat").value,addr=$("#caddr").value.trim()||null;
+  const b=$("#cadd");b.disabled=true;b.textContent="Ekleniyor…";
+  let ll=null;if(addr&&navigator.onLine)ll=await geocode(addr);
+  const tmp="u-tmp"+Date.now();const it={id:tmp,cat,title,addr,time:t,by:ME,custom:true,addedAt:Date.now()};if(ll){it.lat=ll.lat;it.lng=ll.lng}
+  S.items.push(it);I[tmp]=it;S.plan[tmp]=d;if(t)S.ptime[tmp]=t;
+  send("trip_add_item",{p:ME,title,cat,d,t,addr,lat:ll?ll.lat:null,lng:ll?ll.lng:null,descr:null});
+  closeSheet();renderSoft();toast("＋ "+title+" programa eklendi"+(addr&&!ll?" (adres haritada bulunamadı)":""));
+}
+function doNote(i,t){t=(t||"").trim();if(!t)return;S.notes.push({id:-Date.now(),i,p:ME,t,ts:Date.now(),pend:1});send("trip_note",{i,p:ME,t,del:null});renderSoft()}
+function delNote(nid){S.notes=S.notes.filter(n=>n.id!==nid);send("trip_note",{i:"",p:ME,t:"",del:nid});renderSoft()}
+function doChat(t){t=(t||"").trim();if(!t)return;S.chat.push({id:-Date.now(),p:ME,role:"user",text:t,ts:Date.now(),pend:1});send("trip_chat",{p:ME,t});renderSoft();setTimeout(()=>scrollTo(0,document.body.scrollHeight),50)}
+
+/* ---------- header / tabs ---------- */
+function renderSign(){
+  const start=Date.UTC(2026,11,25,15,55),now=Date.now();
+  let cd;if(now<start){cd=`<div class="cd"><b>${Math.ceil((start-now)/864e5)}</b><span>gün kaldı</span></div>`}
+  else{const n=nyNow();const x=DAYS.findIndex(z=>z[0]===n.d);cd=x>=0?`<div class="cd"><b>${x+1}/8</b><span>gün · NY ${n.t}</span></div>`:`<div class="cd"><b>✓</b><span>bitti</span></div>`}
+  const me=PPL[ME]||{n:"?",c:"#666",l:"?"},ot=PPL[OTHER()];
+  const otLikes=Object.values(V[OTHER()]||{}).filter(v=>v===1).length,meLikes=Object.values(V[ME]||{}).filter(v=>v===1).length;
+  const push=ls("nyc_push")==="1";
+  $("#sign").innerHTML=`<div class="signrow"><span class="bul logo">NY</span><div class="tt"><h1>Noel'den Yılbaşına</h1><div class="sub">25 Ara → 2 Oca · Necmi & Ahmet</div></div>${cd}</div>
+  <div class="sbtns"><button class="pill me" id="pme"><span class="bul dot" style="background:${me.c};color:#fff">${me.l}</span>${me.n} · ${meLikes}👍</button><span class="pill"><span class="bul dot" style="background:${ot.c};color:#fff">${ot.l}</span>${ot.n} · ${otLikes}👍</span><span class="sp"></span>
+  <button class="pill ${push?"":"warn"}" id="ppush">${push?"🔔":"🔕 Bildirim"}</button><button class="pill" id="pguide">ℹ Rehber</button></div>`;
+  $("#pme").onclick=()=>{if(confirmSwitch())pickPerson()};
+  $("#ppush").onclick=()=>push?openPushInfo():enablePush();
+  $("#pguide").onclick=openGuide;
+}
+function confirmSwitch(){return true}
+function renderTabs(){
+  const b=badges();
+  const T=[["hat","Hat","◉"],["rez","Rezerv·₺","✓"],["kesfet","Keşfet","★"],["harita","Harita","⌖"],["sohbet","Sohbet","✎"]];
+  $("#tabs").innerHTML=T.map(([k,n,i])=>`<button data-t="${k}" class="${tab===k?"on":""}"><span class="ti">${i}</span>${n}${b[k]?`<span class="badge">${b[k]}</span>`:""}</button>`).join("");
+  $("#tabs").querySelectorAll("button").forEach(x=>x.onclick=()=>go(x.dataset.t));
+}
+function go(t){if(tab===t){scrollTo({top:0,behavior:"smooth"});return}tab=t;ls("nyc_tab",t);history.replaceState(null,"",location.pathname+location.search+"#"+t);render();scrollTo(0,0);markSeen()}
+
+/* ---------- new-item detection ---------- */
+function badges(){
+  if(!S)return{};
+  const b={};
+  const lastK=seen.k||0,lastC=seen.c||0;
+  b.kesfet=S.items.filter(x=>(x.addedAt||0)>lastK&&!archInfo(x)).length||0;
+  b.sohbet=S.chat.filter(m=>m.ts>lastC&&(m.role==="claude"||m.p!==ME)).length||0;
+  b.rez=S.items.filter(x=>needsBook(x)&&x.urgent&&!S.booked[x.id]&&!archInfo(x)&&!isAlt(x)&&(dayOf(x)||anyLike(x.id)||x.must)).length||0;
+  return b;
+}
+function markSeen(){
+  if(!S)return;
+  if(tab==="kesfet"){setTimeout(()=>{seen.k=Date.now();ls("nyc_seen2",JSON.stringify(seen));renderTabs()},3500)}
+  if(tab==="sohbet"){seen.c=Date.now();ls("nyc_seen2",JSON.stringify(seen));renderTabs()}
+}
+let lastSnap=null;
+function detectNew(){
+  const snap={i:S.items.length,c:S.chat.length,b:Object.keys(S.booked).length,n:S.notes.length};
+  if(lastSnap){
+    const newC=S.chat.slice(lastSnap.c).filter(m=>m.p!==ME||m.role==="claude");
+    if(newC.length){const m=newC[newC.length-1];toast((m.role==="claude"?"🤖 Claude: ":"💬 "+PPL[m.p].n+": ")+m.text.slice(0,90))}
+    else if(snap.i>lastSnap.i)toast("✨ "+(snap.i-lastSnap.i)+" yeni öneri eklendi");
+    else if(snap.n>lastSnap.n){const n=S.notes[S.notes.length-1];if(n&&n.p!==ME)toast("📝 "+PPL[n.p].n+" not yazdı: "+n.t.slice(0,80))}
+  }
+  lastSnap=snap;
+}
+
+/* ---------- HAT (day line) ---------- */
+function dayItems(d){
+  return S.items.filter(it=>dayOf(it)===d&&!(archInfo(it)&&!S.booked[it.id])&&it.cat!=="otel"&&!isAlt(it))
+   .sort((a,b)=>(tmin(timeOf(a))??9999)-(tmin(timeOf(b))??9999));
+}
+function defaultDay(){const n=nyNow().d;return DAYS.some(z=>z[0]===n)?n:(ls("nyc_day")&&DAYS.some(z=>z[0]===ls("nyc_day"))?ls("nyc_day"):DAYS[0][0])}
+function suggestNear(pt,n,mode){
+  const okc=mode==="eve"?x=>(x.cat==="yemek"&&x.taste&&/tatl|puding|kurabiye|cheesecake/i.test(x.title+(x.sub||"")))||["caz","deneyim","manzara"].includes(x.cat):x=>x.cat==="yemek";
+  const pool=S.items.filter(x=>okc(x)&&hasLL(x)&&!dayOf(x)&&!archInfo(x)&&!isAlt(x));
+  return pool.map(x=>({x,d:hav(pt,x)})).sort((a,b)=>(a.d-(a.x.taste?.15:0)-(anyLike(a.x.id)?.3:0))-(b.d-(b.x.taste?.15:0)-(anyLike(b.x.id)?.3:0))).slice(0,n);
+}
+function sgBtns(list,day,time){return list.map(({x,d})=>`<button class="sgb" data-open="${x.id}">${bul(x.cat,16)}${esc(x.title.split("·")[0].trim())}<span class="mono" style="color:var(--mute)">${km(d*1.3)}</span></button>`).join("")}
+function rHat(){
+  if(!selDay)selDay=defaultDay();
+  const D=DAYS.find(z=>z[0]===selDay)||DAYS[0];const nd=nyNow().d;
+  const di=DAYS.indexOf(D);
+  document.documentElement.style.setProperty("--day",D[4]);document.documentElement.style.setProperty("--dayT",D[5]);
+  let h="";
+  // alerts
+  const urg=S.items.filter(x=>needsBook(x)&&x.urgent&&!S.booked[x.id]&&!archInfo(x)&&!isAlt(x)&&(dayOf(x)||anyLike(x.id)||x.must));
+  const nowList=(S.meta.guide||[]).find(g=>/Şimdi/.test(g.t));
+  if(urg.length)h+=`<button class="alert" data-go="rez"><span class="ai">⏰</span><div><b>${urg.length} acil rezervasyon bekliyor</b><span>${esc(urg.slice(0,3).map(x=>x.title.split("·")[0].trim()).join(", "))}${urg.length>3?"…":""}</span></div></button>`;
+  // strip
+  h+=`<div class="strip"><div class="rail"></div>${DAYS.map((z,i)=>`<button class="st ${z[0]===selDay?"on":""} ${z[0]===nd?"today":""}" data-day="${z[0]}" style="--day:${z[4]}">${z[3]?`<em>${z[3]}</em>`:""}<i></i><b>${+z[0].slice(8)}</b><span>${z[1]}</span></button>`).join("")}</div>`;
+  const list=dayItems(selDay);
+  const hot=hotel();
+  const walkKm=(()=>{let s=0,prev=hot;for(const it of list){if(hasLL(it)&&prev&&hasLL(prev))s+=hav(prev,it)*1.3;if(hasLL(it))prev=it}return s})();
+  h+=`<div class="dayh"><span class="bul big">${+selDay.slice(8)}</span><div><h3>${fmtDay(selDay)}</h3><p>${list.length} durak${walkKm?` · ~${km(walkKm)} yol`:""}${hot?` · 🏨 ${esc(hot.title)}`:` · otel henüz seçilmedi`}</p></div></div>`;
+  h+=`<div class="dact"><button class="btn s" data-add="${selDay}">＋ Güne ekle</button><button class="btn s" data-dmap="${selDay}">⌖ Günün haritası</button><button class="btn s" data-dnote="${selDay}">✎ Gün notu</button></div>`;
+  // day notes
+  const dn=S.notes.filter(n=>n.i==="day:"+selDay);
+  if(dn.length)h+=`<div class="notes" style="margin-top:10px">${dn.map(noteHtml).join("")}</div>`;
+  if(!list.length){h+=`<div class="empty">Bu gün henüz boş. Keşfet'ten beğendiklerinizi ekleyin ya da sohbete “${fmtDay(selDay,1)} için öneri” yazın.</div>`;return h}
+  h+=`<div class="line">`;
+  let prev=hot&&selDay!=="2026-12-25"?Object.assign({},hot,{_hotel:1}):null;
+  if(prev)h+=`<div class="stop"><div class="tm" style="color:var(--mute)">🏨</div><div class="nd" style="border-radius:3px"></div><div class="bx" style="border-style:dashed;background:transparent;padding:6px 10px"><div class="tx"><b style="font-size:13.5px">${esc(hot.title)}</b><small>Güne buradan başlıyorsunuz</small></div></div></div>`;
+  let lastEnd=null,hadLunch=false,hadDinner=false;
+  const isFood=x=>x.cat==="yemek"||/yeme[kğ]|dinner|brunch|kahvaltı|steakhouse|restoran/i.test(x.title);
+  list.forEach((it,ix)=>{
+    const t=timeOf(it),m=tmin(t);
+    // meal hints before this stop
+    if(m!=null&&!hadLunch&&m>=15*60&&selDay!=="2026-12-25"&&!list.some(x=>isFood(x)&&tmin(timeOf(x))>=11*60+30&&tmin(timeOf(x))<=15*60)){
+      hadLunch=true;const base=hasLL(prev)?prev:(hasLL(it)?it:null);
+      if(base)h+=`<div class="gap"><div></div><div></div><div class="gx">🍽 <b>Öğle yemeği arası</b> · yakındaki lezzetler<div class="sg">${sgBtns(suggestNear(base,3),selDay)}</div></div></div>`;
+    }
+    if(m!=null&&!hadDinner&&m>=17*60&&!list.some(x=>isFood(x)&&tmin(timeOf(x))>=17*60&&tmin(timeOf(x))<=21*60+30)&&["broadway","caz","ozel","sahne"].includes(it.cat)&&!isFood(it)){
+      hadDinner=true;const base=hasLL(it)?it:(hasLL(prev)?prev:null);
+      if(base)h+=`<div class="gap"><div></div><div></div><div class="gx">🍽 <b>Önce akşam yemeği</b> · ${esc(it.title.split("·")[0].trim())} yakınında<div class="sg">${sgBtns(suggestNear(base,3),selDay)}</div></div></div>`;
+    }
+    // free time
+    if(lastEnd!=null&&m!=null&&m-lastEnd>=150){
+      const base=hasLL(prev)?prev:null;const hrs=((m-lastEnd)/60).toFixed(1).replace(".0","").replace(".",",");
+      if(prev&&prev.cat==="ucus"||list[ix-1]&&list[ix-1].cat==="ucus")h+=`<div class="gap"><div></div><div></div><div class="gx">🧳 <b>Havalimanından otele · yerleşme</b><br><span style="color:var(--mute);font-size:12.5px">JFK → Manhattan sarı taksi sabit $70 (+ ek ücret, köprü, bahşiş ≈ $90-115) ya da AirTrain + metro (~1 sa). Erken check-in yoksa bavulu resepsiyona bırakın.</span></div></div>`;else
+      h+=`<div class="gap"><div></div><div></div><div class="gx">☕ <b>Serbest zaman · ~${hrs} saat</b><br><span style="color:var(--mute);font-size:12.5px">Dinlenin, sokaklarda kaybolun${base?"; yakında denenecekler:":""}</span>${base?`<div class="sg">${sgBtns(suggestNear(base,2,lastEnd>=17*60?"eve":"food"),selDay)}</div>`:""}</div></div>`;
+    }
+    // leg
+    if(prev&&hasLL(prev)&&hasLL(it)){
+      const L=legInfo(prev,it);
+      h+=`<div class="leg"><div></div><div></div><div class="lx">${L.walk<=22?`🚶 <a href="${gm(prev,it,"walking")}" target="_blank" rel="noopener">${L.walk} dk yürü</a> · ${km(L.km)}`:`🚇 <a href="${gm(prev,it,"transit")}" target="_blank" rel="noopener">metro ~${L.transit} dk</a> · 🚕 <a href="${gm(prev,it,"driving")}" target="_blank" rel="noopener">~${L.car} dk</a> · 🚶 <a href="${gm(prev,it,"walking")}" target="_blank" rel="noopener">${L.walk} dk</a>`}</div></div>`;
+    }
+    h+=stopHtml(it);
+    if(it.grp&&it.grp!=="otel"){const alts=S.items.filter(x=>x.grp===it.grp&&x.id!==it.id&&isAlt(x)&&!archInfo(x));if(alts.length)h+=`<div class="gap"><div></div><div></div><div class="gx" style="border-style:dotted">↔ <b>Alternatifler</b> <span style="color:var(--mute);font-size:12px">(bunu ✓ alınca arşive geçer)</span><div class="sg">${alts.map(x=>`<button class="sgb" data-open="${x.id}">${bul(x.cat,16)}${esc(x.title.split("·")[0].trim())}</button>`).join("")}</div></div></div>`}
+    if(hasLL(it))prev=it;
+    if(m!=null)lastEnd=m+durMin(it);
+    if(isFood(it)&&m!=null){if(m>=11*60&&m<16*60)hadLunch=true;else if(m>=16*60)hadDinner=true}
+  });
+  h+=`<div class="endst"><div></div><div class="nd"></div><span>${di<DAYS.length-1?"Gün sonu · "+(hot?"otele dönüş":"dinlenme"):"İyi yolculuklar ✈"}</span></div></div>`;
+  // fits this day
+  const cand=S.items.filter(x=>!dayOf(x)&&anyLike(x.id)&&!archInfo(x)&&x.cat!=="otel"&&x.cat!=="ucus");
+  if(cand.length){
+    const pts=list.filter(hasLL);const cen=pts.length?{lat:pts.reduce((a,b)=>a+b.lat,0)/pts.length,lng:pts.reduce((a,b)=>a+b.lng,0)/pts.length}:null;
+    const near=cand.filter(hasLL).map(x=>({x,d:cen?hav(cen,x):0})).sort((a,b)=>a.d-b.d).slice(0,4);
+    if(near.length)h+=`<h2 class="sec">Bu güne sığabilecek beğenileriniz</h2><div class="wrap"><div class="sg" style="display:flex;flex-wrap:wrap;gap:6px">${near.map(({x,d})=>`<button class="sgb" data-open="${x.id}">${bul(x.cat,16)}${esc(x.title.split("·")[0].trim())}${cen?`<span class="mono" style="color:var(--mute)">${km(d*1.3)}</span>`:""}</button>`).join("")}</div></div>`;
+  }
+  return h;
+}
+function stopHtml(it){
+  const B=S.booked[it.id],need=needsBook(it)&&!B,ph=photo(it);
+  const cls=["stop",B?"ok":"",(it.must||both(it.id))&&!B?"exp":""].join(" ");
+  const nn=S.notes.filter(n=>n.i===it.id).length;
+  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><div class="bw"><button class="more" data-more="${it.id}" aria-label="Düzenle">⋯</button><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}</small><div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}</div></div></button></div></div>`;
+}
+
+/* ---------- REZERV ---------- */
+let rezMode=ls("nyc_rezmode")||"rez";
+function rRez(){
+  const seg=`<div class="chips"><button class="chip ${rezMode==="rez"?"on":""}" data-rm="rez">✓ Rezervasyonlar</button><button class="chip ${rezMode==="bud"?"on":""}" data-rm="bud">💳 Bütçe & harcamalar</button></div>`;
+  return seg+(rezMode==="bud"?rBudget():rRezList());
+}
+const FX=()=>(S.meta.fx&&+S.meta.fx.USDTRY)||50;
+const EFX=()=>(S.meta.fx&&+S.meta.fx.EURTRY)||56;
+function toTRY(a,c){a=+a;return c==="TRY"?a:c==="EUR"?a*EFX():a*FX()}
+function fmtN(n,d){return (+n).toLocaleString("tr-TR",{maximumFractionDigits:d||0,minimumFractionDigits:d||0})}
+function money(a,c){return c==="TRY"?fmtN(a)+" TL":(c==="EUR"?"€":"$")+fmtN(a,(+a%1)?2:0)}
+function balances(){
+  const paid={necmi:0,ahmet:0},owe={necmi:0,ahmet:0},cats={};let tot=0;
+  for(const e of S.expenses){const t=toTRY(e.a,e.c);tot+=t;paid[e.pb]+=t;if(e.sp==="both"){owe.necmi+=t/2;owe.ahmet+=t/2}else owe[e.sp]+=t;const c=e.cat||"diger";cats[c]=(cats[c]||0)+t}
+  return{paid,owe,tot,cats,bal:{necmi:paid.necmi-owe.necmi,ahmet:paid.ahmet-owe.ahmet}};
+}
+function rBudget(){
+  const B=balances(),bud=(S.meta.budget||{})[ME]||0,my=B.owe[ME];
+  let h=`<div class="prog"><small>Toplam harcama (2 kişi)</small><br><b style="font-size:26px;font-stretch:75%">${fmtN(B.tot)} TL</b> <span class="mono" style="color:var(--mute)">≈ $${fmtN(B.tot/FX())}</span>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">${["necmi","ahmet"].map(p=>`<div style="border-top:3px solid ${PPL[p].c};padding-top:6px"><small>${PPL[p].n} ödedi</small><br><b>${fmtN(B.paid[p])} TL</b><br><small>payına düşen ${fmtN(B.owe[p])} TL</small></div>`).join("")}</div>`;
+  const d=B.bal.necmi;
+  h+=`<div style="margin-top:10px;font-weight:800">${Math.abs(d)<1?"✓ Hesap denk":(d>0?"Ahmet → Necmi: ":"Necmi → Ahmet: ")+fmtN(Math.abs(d))+" TL"}</div>`;
+  h+=`<div style="margin-top:12px"><small>${PPL[ME].n} · kişisel bütçe</small>${bud?`<div class="bar"><i style="width:${Math.min(100,Math.round(my/bud*100))}%;background:${my>bud?"var(--red)":"var(--green)"}"></i></div><small>${fmtN(my)} / ${fmtN(bud)} TL · kalan ${fmtN(bud-my)} TL</small>`:`<br><small>Henüz bütçe girmediniz.</small>`} <button class="btn s" id="bset" style="margin-top:6px">${bud?"Bütçeyi değiştir":"＋ Bütçe belirle"}</button></div>
+  <div class="hint" style="padding:6px 0 0">Kur: 1 $ = ${fmtN(FX(),2)} TL${S.meta.fx&&S.meta.fx.date?" ("+esc(S.meta.fx.date)+")":""} · Claude her sabah günceller</div></div>`;
+  h+=`<div class="dact"><button class="btn k" id="eadd">＋ Harcama ekle</button></div>`;
+  const cs=Object.entries(B.cats).sort((a,b)=>b[1]-a[1]);
+  if(cs.length){h+=`<h2 class="sec">Kategorilere göre</h2><div class="wrap">${cs.map(([c,v])=>`<div style="display:flex;align-items:center;gap:8px;margin:6px 0">${CAT[c]?bul(c,22):`<span class="bul" style="width:22px;height:22px;background:#999;color:#fff;font-size:10px">•</span>`}<div style="flex:1"><div style="font-size:13px;font-weight:700">${CAT[c]?CAT[c].n:"Diğer"}<span class="mono" style="float:right">${fmtN(v)} TL</span></div><div class="bar" style="height:6px;background:var(--paper2);margin-top:3px"><i style="display:block;height:100%;width:${Math.round(v/B.tot*100)}%;background:${CAT[c]?CAT[c].c:"#999"}"></i></div></div></div>`).join("")}</div>`}
+  const unpaid=S.items.filter(x=>S.booked[x.id]&&!S.expenses.some(e=>e.i===x.id));
+  if(unpaid.length)h+=`<h2 class="sec">Alındı ama tutarı girilmedi<small>${unpaid.length}</small></h2><div class="list">${unpaid.map(x=>`<div class="row">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(String(x.price||"").slice(0,60))}</small></span><button class="btn s k" data-exp="${x.id}">＋ Tutar</button></div>`).join("")}</div>`;
+  h+=`<h2 class="sec">Harcamalar<small>${S.expenses.length}</small></h2><div class="list">${S.expenses.slice().reverse().map(e=>`<div class="row">${CAT[e.cat]?bul(e.cat):`<span class="bul" style="width:30px;height:30px;background:#999;color:#fff">•</span>`}<span class="tx"><b>${esc(e.t)}</b><small>${PPL[e.pb]?PPL[e.pb].n:""} ödedi · ${e.sp==="both"?"yarı yarıya":(PPL[e.sp]?PPL[e.sp].n+"'in":"")} · ${ago(e.ts)} önce</small></span><span style="text-align:right"><b class="mono" style="font-size:13px">${money(e.a,e.c)}</b>${e.c!=="TRY"?`<br><small class="mono" style="color:var(--mute)">${fmtN(toTRY(e.a,e.c))} TL</small>`:""}${e.id>0?`<br><button class="del" data-delexp="${e.id}" style="font-size:11px;color:var(--mute)">sil</button>`:""}</span></div>`).join("")||`<div class="empty">Henüz harcama yok. Bir rezervasyonu ✓ işaretleyince tutarını sorarım; ya da ＋ Harcama ekle.</div>`}</div>`;
+  return h;
+}
+function guessAmt(it){const p=String(it&&it.price||"");let m=/([\d.]+)\s*TL/.exec(p);if(m)return{a:+m[1].replace(/\./g,""),c:"TRY"};m=/\$\s?([\d.,]+)/.exec(p);if(m)return{a:+m[1].replace(",",".")*2,c:"USD"};return{a:"",c:"USD"}}
+function openExpense(o){
+  const it=o.item?I[o.item]:null;const g=guessAmt(it);
+  const catOpt=Object.entries(CAT).filter(([k])=>k!=="ucus").map(([k,c])=>`<option value="${k}" ${it&&it.cat===k?"selected":""}>${c.n}</option>`).join("")+`<option value="ucus">Uçuş / ulaşım</option><option value="diger" ${!it?"selected":""}>Diğer</option>`;
+  openSheet(`<div class="dt"><div class="cat">Harcama ${it?"· "+esc(it.title):""}</div><h3>Ne kadar ödendi?</h3>${it&&it.price?`<p style="color:var(--mute);font-size:13px">Kartta yazan: ${esc(it.price)}</p>`:""}</div>
+  <div class="plbox" style="display:grid;gap:8px"><input id="et" placeholder="Açıklama" value="${esc(it?it.title.split("·")[0].trim():"")}"><div style="display:flex;gap:8px"><input id="ea" type="number" inputmode="decimal" step="0.01" placeholder="Tutar" value="${g.a||""}" style="flex:1;min-width:0"><select id="ec"><option ${g.c==="USD"?"selected":""}>USD</option><option ${g.c==="TRY"?"selected":""}>TRY</option><option>EUR</option></select></div>
+  <label>Kim ödedi?</label><div style="display:flex;gap:8px">${["necmi","ahmet"].map(p=>`<label style="display:flex;gap:6px;align-items:center;font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink);width:auto"><input type="radio" name="epb" value="${p}" ${p===ME?"checked":""}> ${PPL[p].n}</label>`).join("")}</div>
+  <label>Kimin harcaması?</label><select id="esp"><option value="both">İkimizin · yarı yarıya</option><option value="necmi">Sadece Necmi'nin</option><option value="ahmet">Sadece Ahmet'in</option></select>
+  <label>Kategori</label><select id="ecat">${catOpt}</select>
+  <button class="btn k" id="esave" style="justify-content:center;height:44px">Kaydet</button>${it?`<button class="btn" id="eskip" style="justify-content:center">Sonra gireceğim</button>`:""}</div>`,"exp");
+  $("#esave").onclick=()=>{const a=parseFloat(String($("#ea").value).replace(",","."));const t=$("#et").value.trim();if(!(a>0)||!t)return toast("Tutar ve açıklama girin");
+    const pb=(document.querySelector('input[name=epb]:checked')||{}).value||ME;const e={id:-Date.now(),t,a,c:$("#ec").value,pb,sp:$("#esp").value,i:it?it.id:null,cat:$("#ecat").value,by:ME,ts:Date.now()};
+    S.expenses.push(e);send("trip_expense",{p:ME,title:t,amount:a,cur:e.c,paid_by:pb,split:e.sp,item_id:e.i,cat:e.cat,del:null});closeSheet();toast("💳 "+money(a,e.c)+" kaydedildi");renderSoft()};
+  const sk=$("#eskip");if(sk)sk.onclick=closeSheet;
+}
+function setBudget(){const v=prompt("Kişisel bütçen (TL, uçak hariç):",(S.meta.budget||{})[ME]||"");if(v==null)return;const n=parseFloat(String(v).replace(/\./g,"").replace(",","."));if(!(n>0))return;S.meta.budget=Object.assign({},S.meta.budget,{[ME]:n});send("trip_budget",{p:ME,amount:n});renderSoft()}
+function rRezList(){
+  const rel=S.items.filter(x=>needsBook(x)&&(dayOf(x)||anyLike(x.id)||x.must||S.booked[x.id]||x.cat==="otel"&&both(x.id)));
+  const done=rel.filter(x=>S.booked[x.id]);
+  const todo=rel.filter(x=>!S.booked[x.id]&&!archInfo(x)&&!isAlt(x));
+  const total=done.length+todo.length;
+  let h=`<div class="prog"><b>${done.length} / ${total} rezervasyon tamam</b><br><small>Planda olan, beğendiğiniz ya da “kesin” işaretli ve bilet/rezervasyon gerektirenler. Aldığınızda ✓ işaretleyin; aynı gruptaki alternatifler kendiliğinden arşive geçer.</small><div class="bar"><i style="width:${total?Math.round(done.length/total*100):0}%"></i></div></div>`;
+  const ho=hotel();
+  if(!S.items.some(x=>x.cat==="otel"&&S.booked[x.id]))h+=`<button class="alert y" data-go="kesfet" data-grp="otel"><span class="ai">🏨</span><div><b>Otel henüz alınmadı</b><span>${ho?esc(ho.title)+" ikinizin de favorisi.":"Konaklama listesinden ikiniz de 👍 verin; öne çıksın."}</span></div></button>`;
+  const urgent=todo.filter(x=>x.urgent),dated=todo.filter(x=>!x.urgent&&dayOf(x)).sort((a,b)=>(dayOf(a)+timeOf(a)).localeCompare(dayOf(b)+timeOf(b))),other=todo.filter(x=>!x.urgent&&!dayOf(x));
+  const sec=(t,arr)=>arr.length?`<h2 class="sec">${t}<small>${arr.length}</small></h2><div class="list">${arr.map(rvRow).join("")}</div>`:"";
+  h+=sec("Acil · hemen alın",urgent)+sec("Tarihli",dated)+sec("Beğendikleriniz · tarih yok",other);
+  if(done.length)h+=`<h2 class="sec">Alındı ✓<small>${done.length}</small></h2><div class="list">${done.map(rvRow).join("")}</div>`;
+  const autoN=S.items.filter(x=>{const a=archInfo(x);return a&&a.auto}).length;
+  if(autoN)h+=`<div class="hint">🗄 ${autoN} alternatif otomatik arşivde (Keşfet → Arşiv).</div>`;
+  return h;
+}
+function rvRow(it){
+  const B=S.booked[it.id];const d=dayOf(it);
+  return `<div class="rv"><button class="top" data-open="${it.id}">${bul(it.cat,30)}<div class="tx" style="flex:1;min-width:0"><b style="display:block;font-size:15px;font-weight:760;font-stretch:88%">${esc(it.title)}</b><small style="color:var(--mute);font-size:12px">${d?fmtDay(d,1)+(timeOf(it)?" · "+esc(timeOf(it)):""):"tarih seçilmedi"}${it.price?" · "+esc(String(it.price).slice(0,60)):""}</small></div></button>
+  ${!B&&it.book?`<div class="bk">${esc(it.book)}</div>`:""}
+  <div class="acts">${it.url?`<a class="btn s" href="${esc(it.url)}" target="_blank" rel="noopener">Rezervasyon ↗</a>`:""}<button class="btn s ${B?"g":"k"}" data-book="${it.id}">${B?"✓ "+(PPL[B]?PPL[B].n:"")+" aldı · geri al":"✓ Aldık"}</button></div></div>`;
+}
+
+/* ---------- KEŞFET ---------- */
+function rKesfet(){
+  const arch=S.items.filter(x=>archInfo(x));
+  const F=[["all","Tümü"],["new","👀 Oy vermediklerim"],["both","💚 İkimiz"],["taste","🍴 Mutlaka ye"],["mine","👤 Benim bulduklarım"],["arch","🗄 Arşiv ("+arch.length+")"]];
+  let h=`<div class="search">⌕<input id="kq" placeholder="Ara: caz, pizza, Tribeca…" value="${esc(kQuery)}"></div><div class="chips">${F.map(([k,n])=>`<button class="chip ${kFilter===k?"on":""}" data-kf="${k}">${n}</button>`).join("")}</div>`;
+  const q=kQuery.trim().toLocaleLowerCase("tr");
+  const pass=it=>{
+    if(q&&!((it.title+" "+(it.area||"")+" "+(it.desc||"")+" "+(it.sub||"")).toLocaleLowerCase("tr").includes(q)))return false;
+    const a=archInfo(it);
+    if(kFilter==="arch")return !!a;
+    if(a)return false;
+    if(kFilter==="new")return !mv(it.id)&&it.cat!=="ucus";
+    if(kFilter==="both")return both(it.id);
+    if(kFilter==="taste")return !!it.taste;
+    if(kFilter==="mine")return it.by===ME;
+    return true;
+  };
+  const used=new Set();let any=false;
+  for(const [k,n,cat,f] of GROUPS){
+    const arr=S.items.filter(it=>!used.has(it.id)&&f(it)&&pass(it)).sort((a,b)=>score(b)-score(a)||((a.addedAt||0)-(b.addedAt||0)));
+    S.items.filter(it=>f(it)).forEach(it=>used.add(it.id));
+    if(!arr.length)continue;any=true;
+    const open=q||kFilter!=="all"||ls("nyc_g_"+k)==="1"||(openGrp===k);
+    h+=`<details class="grp" data-g="${k}" ${open?"open":""}><summary>${bul(cat,30)}<b>${n}</b><small>${arr.length}</small></summary><div class="list">${arr.map(rowHtml).join("")}</div></details>`;
+  }
+  if(!any)h+=`<div class="empty">Burada bir şey yok.</div>`;
+  return h;
+}
+let openGrp=null;
+function rowHtml(it){
+  const ph=photo(it),a=archInfo(it),B=S.booked[it.id];
+  const nv=vote("necmi",it.id),av=vote("ahmet",it.id);
+  const wi=(p,v)=>`<i class="${v===1?"l":v===-1?"d":""}">${PPL[p].l}</i>`;
+  return `<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.rating?`<div class="pr" style="color:#7a5a00">★ ${esc(String(it.rating).replace(/ · \d.*$/,"").slice(0,40))}</div>`:""}${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${!a&&isAlt(it)?`<span class="tag ar">alternatif</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:""}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="vq"><button class="${mv(it.id)===1?"on up":""}" data-v="${it.id}|1" aria-label="Beğendim">👍</button><button class="${mv(it.id)===-1?"on dn":""}" data-v="${it.id}|-1" aria-label="Geç">👎</button></div><div class="who">${wi("necmi",nv)}${wi("ahmet",av)}</div></div></div>`;
+}
+
+/* ---------- HARİTA ---------- */
+let LM=null,LG=null,meLL=null,meMk=null;
+function rHarita(){
+  const chips=[["all","Tümü"],["liked","💚 Beğenilenler"],...DAYS.map(z=>[z[0],fmtDay(z[0],1)])];
+  return `<div class="chips">${chips.map(([k,n])=>`<button class="chip ${mapDay===k?"on":""}" data-md="${k}">${n}</button>`).join("")}</div><div id="mapwrap"><div id="lmap"></div><div class="mtools"><button id="mloc" aria-label="Konumum">◎</button><button id="mfit" aria-label="Sığdır">⤢</button></div></div><div class="legend" id="mleg"></div>`;
+}
+function mapItems(){
+  let arr=S.items.filter(x=>hasLL(x)&&x.cat!=="ucus"&&!archInfo(x));
+  if(mapDay==="liked")arr=arr.filter(x=>anyLike(x.id)||S.booked[x.id]);
+  else if(mapDay!=="all")arr=arr.filter(x=>dayOf(x)===mapDay&&!isAlt(x)).sort((a,b)=>(tmin(timeOf(a))??9999)-(tmin(timeOf(b))??9999));
+  return arr;
+}
+function mkIcon(it,n){const C=CAT[it.cat]||CAT.deneyim;const B=S.booked[it.id];
+  return L.divIcon({className:"",html:`<div class="mk ${n?"n":""}" style="background:${C.c};color:${C.t};${both(it.id)||B?"border-color:#00933c;border-width:3.5px":""}">${n||C.l}</div>`,iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]})}
+function popHtml(it){
+  const ho=hotel();let dist="";
+  if(ho&&ho.id!==it.id&&hasLL(ho)){const x=legInfo(ho,it);dist=`<div style="margin-top:4px">🏨 Otelden ${km(x.km)} · 🚶 ${x.walk} dk · 🚇 ~${x.transit} dk</div>`}
+  if(meLL){const x=legInfo(meLL,it);dist+=`<div>📍 Senden ${km(x.km)} · 🚶 ${x.walk} dk</div>`}
+  return `<div class="pp"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${dayOf(it)&&it.cat!=="otel"?" · "+fmtDay(dayOf(it),1)+" "+esc(timeOf(it)):""}</small>${dist}<div class="dl"><button data-open="${it.id}">Detay</button><a href="${gm(meLL,it,"walking")}" target="_blank" rel="noopener">🚶 Yürü</a><a href="${gm(meLL,it,"transit")}" target="_blank" rel="noopener">🚇 Metro</a><a href="${gm(meLL,it,"driving")}" target="_blank" rel="noopener">🚕 Taksi</a></div></div>`;
+}
+function initMap(){
+  if(typeof L==="undefined"){$("#lmap").innerHTML=`<div class="empty">Harita kütüphanesi yüklenemedi. Bir kez internete bağlanınca çevrimdışı da çalışır.</div>`;return}
+  if(LM){LM.remove();LM=null}
+  LM=L.map("lmap",{zoomControl:false,attributionControl:true}).setView([40.735,-73.99],13);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(LM);
+  LG=L.layerGroup().addTo(LM);
+  drawMap(true);
+  $("#mloc").onclick=locate;$("#mfit").onclick=()=>drawMap(true);
+  LM.on("popupopen",e=>{const el=e.popup.getElement();el.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openItem(b.dataset.open))});
+}
+function drawMap(fit){
+  if(!LM)return;LG.clearLayers();
+  const list=mapItems(),pts=[];const day=mapDay!=="all"&&mapDay!=="liked";
+  const ho=hotel();
+  if(ho&&hasLL(ho)){L.marker([ho.lat,ho.lng],{icon:L.divIcon({className:"",html:`<div class="mk ht">H</div>`,iconSize:[28,28],iconAnchor:[14,14]}),zIndexOffset:500}).bindPopup(popHtml(ho)).addTo(LG);if(day)pts.push([ho.lat,ho.lng])}
+  list.forEach((it,i)=>{if(ho&&it.id===ho.id)return;const ll=[it.lat,it.lng];pts.push(ll);L.marker(ll,{icon:mkIcon(it,day?i+1:0)}).bindPopup(popHtml(it)).addTo(LG)});
+  if(day&&pts.length>1){L.polyline(pts,{color:(DAYS.find(z=>z[0]===mapDay)||DAYS[0])[4],weight:6,opacity:.9}).addTo(LG);L.polyline(pts,{color:"#121212",weight:1.5,opacity:.8,dashArray:"2 6"}).addTo(LG)}
+  if(meLL){meMk=L.marker([meLL.lat,meLL.lng],{icon:L.divIcon({className:"",html:`<div class="mk me"></div>`,iconSize:[18,18],iconAnchor:[9,9]})}).addTo(LG)}
+  if(fit&&pts.length){if(pts.length===1)LM.setView(pts[0],15);else LM.fitBounds(pts,{padding:[30,30],maxZoom:15})}
+  const cats=[...new Set(list.map(x=>x.cat))].filter(c=>CAT[c]);
+  $("#mleg").innerHTML=cats.map(c=>`<span>${bul(c,14)}${CAT[c].n}</span>`).join("")+`<span><span class="bul" style="width:14px;height:14px;background:#121212;color:#fff;font-size:8px;border-radius:2px">H</span>Otel</span><span>yeşil çerçeve: ikiniz / alındı</span>`;
+}
+function locate(){
+  if(!navigator.geolocation)return toast("Konum desteklenmiyor");
+  toast("📍 Konum alınıyor…");
+  navigator.geolocation.getCurrentPosition(p=>{meLL={lat:p.coords.latitude,lng:p.coords.longitude};drawMap(false);if(LM)LM.setView([meLL.lat,meLL.lng],15);toast("📍 Konumun haritada. Noktalara dokununca senden mesafe ve rota çıkar.")},()=>toast("Konum izni verilmedi"),{enableHighAccuracy:true,timeout:10000});
+}
+
+/* ---------- SOHBET ---------- */
+function rSohbet(){
+  const msgs=S.chat.slice(-200);
+  let h=`<div class="hint">Buraya ne sevebileceğinizi yazın (ör. “26'sı için iyi bir ramen”, “Brooklyn'de gece manzarası”). Claude her saat başı okuyup araştırıyor, bulduklarını Keşfet'e ve gerekirse programa ekliyor.</div><div class="chat">`;
+  h+=msgs.map(m=>{const c=m.role==="claude"?"cl":m.p===ME?"me":"ot";const who=m.role==="claude"?"🤖 Claude"+(m.p?" → "+PPL[m.p].n:""):(PPL[m.p]?PPL[m.p].n:"");return `<div class="msg ${c}"><span class="mh">${esc(who)} · ${ago(m.ts)}</span>${esc(m.text)}${m.pend?`<div class="pend">⏳ gönderiliyor</div>`:""}</div>`}).join("")||`<div class="empty">Henüz mesaj yok.</div>`;
+  return h+"</div>";
+}
+
+/* ---------- Sheet: item detail ---------- */
+function noteHtml(n){const P=PPL[n.p]||{c:"#666",l:"?",n:""};return `<div class="note"><span class="bul av" style="background:${P.c}">${P.l}</span><div class="nt">${esc(n.t)}<small>${P.n} · ${ago(n.ts)}${n.pend?" · ⏳":""}</small></div>${n.p===ME&&n.id>0?`<button class="del" data-delnote="${n.id}">sil</button>`:""}</div>`}
+function openSheet(html,key){sheetFor=key||null;$("#sbody").innerHTML=html;$("#sheet").classList.add("on");$("#scrim").classList.add("on");$("#sbody").scrollTop=0;bindSheet()}
+function closeSheet(){sheetFor=null;$("#sheet").classList.remove("on");$("#scrim").classList.remove("on")}
+$("#sx").onclick=closeSheet;$("#scrim").onclick=closeSheet;
+function itemSheet(it){
+  const C=CAT[it.cat]||CAT.deneyim,B=S.booked[it.id],a=archInfo(it),d=dayOf(it),t=timeOf(it);
+  const ho=hotel();
+  let h="";
+  if(it.photos&&it.photos.length)h+=`<div class="gal">${it.photos.map((u,k)=>`<img loading="lazy" src="${esc(u)}" alt="${esc(it.title)} ${k+1}">`).join("")}</div><div class="galc">📷 ${it.photos.length} fotoğraf · kaydırın${it.photo_credit?` · <a href="${esc((it.photo_src||[])[0]||"https://commons.wikimedia.org")}" target="_blank" rel="noopener">${esc(it.photo_credit)}</a>`:""}</div>`;
+  h+=`<div class="dt"><div class="hero" style="padding:0">${bul(it.cat,52)}<div><div class="cat">${C.n}${it.taste?" · NY klasiği":""}${it.by&&PPL[it.by]?" · "+PPL[it.by].n+" buldu":""}</div><h3>${esc(it.title)}</h3></div></div>${it.sub?`<div class="sb">${esc(it.sub)}</div>`:""}
+  <div class="tags" style="margin-top:8px">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${needsBook(it)&&!B?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet / rezervasyon gerekli</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz de beğendiniz</span>`:""}${it.must?`<span class="tag urg">kesin</span>`:""}${a?`<span class="tag ar">🗄 ${esc(a.r)}</span>`:""}</div>
+  ${it.note?`<div class="alert y" style="margin:10px 0 0;width:100%"><span class="ai">⚠</span><div><span>${esc(it.note)}</span></div></div>`:""}
+  ${it.desc?`<p>${esc(it.desc)}</p>`:""}</div>`;
+  const F=[];
+  if(d&&it.cat!=="otel")F.push(["Gün",fmtDay(d)+(t?" · "+t:"")]);else if(it.when)F.push(["Ne zaman",it.when]);
+  if(it.price)F.push(["Fiyat",it.price,1]);
+  if(it.book)F.push(["Rezervasyon",it.book,1]);
+  if(it.dur)F.push(["Süre",typeof it.dur==="number"?Math.round(it.dur/60*10)/10+" saat":it.dur]);
+  if(it.rating)F.push(["Puan",it.rating]);
+  if(it.size)F.push(["Oda",it.size]);
+  if(it.addr)F.push(["Adres",it.addr,1]);
+  if(ho&&hasLL(ho)&&hasLL(it)&&ho.id!==it.id){const x=legInfo(ho,it);F.push(["Otelden",`${km(x.km)} · 🚶 ${x.walk} dk · 🚇 ~${x.transit} dk`,1])}
+  h+=`<div class="facts">${F.map(([k,v,w])=>`<div class="${w?"wide":""}"><small>${k}</small>${esc(v)}</div>`).join("")}</div>`;
+  if(it.cat!=="ucus"){
+    h+=`<div class="vbig"><button class="${mv(it.id)===1?"on up":""}" data-v="${it.id}|1">👍 Beğendim</button><button class="${mv(it.id)===-1?"on dn":""}" data-v="${it.id}|-1">👎 Geç</button></div>`;
+    const o=ov(it.id);h+=`<div class="ov">${PPL[OTHER()].n}: ${o===1?"👍 beğendi":o===-1?"👎 geçti":"henüz oy vermedi"}</div>`;
+  }
+  h+=`<div class="acts2">${it.url?`<a class="btn" href="${esc(it.url)}" target="_blank" rel="noopener">${needsBook(it)?"Rezervasyon":"Web sitesi"} ↗</a>`:""}${needsBook(it)||B?`<button class="btn ${B?"g":"k"}" data-book="${it.id}">${B?"✓ Alındı · geri al":"✓ Aldık"}</button>`:""}${calUrl(it)?`<a class="btn" href="${calUrl(it)}" target="_blank" rel="noopener">📆 Takvime ekle</a>`:""}</div>`;
+  if(it.cat!=="ucus")h+=`<div class="acts2"><a class="btn s" href="${gm(null,it,"walking")}" target="_blank" rel="noopener">🚶 Yürüyerek</a><a class="btn s" href="${gm(null,it,"transit")}" target="_blank" rel="noopener">🚇 Toplu taşıma</a><a class="btn s" href="${gm(null,it,"driving")}" target="_blank" rel="noopener">🚕 Taksi</a><a class="btn s" href="${gsearch(it)}" target="_blank" rel="noopener">★ Google puanı & yorumlar</a></div>`;
+  if(it.cat!=="otel"&&it.cat!=="ucus"){
+    h+=`<div class="plbox"><label>Programa ekle</label><select id="pd"><option value="">— programda değil —</option>${DAYS.map(z=>`<option value="${z[0]}" ${d===z[0]?"selected":""}>${fmtDay(z[0])}</option>`).join("")}</select><input id="pt" type="time" value="${esc(t)}" step="900"><button class="btn k s" id="psave">Kaydet</button></div>`;
+  }
+  h+=`<div class="notes"><h4>Notlarımız</h4>${S.notes.filter(n=>n.i===it.id).map(noteHtml).join("")||`<div style="color:var(--mute);font-size:13px">Henüz not yok. “Pencere kenarı isteyelim”, “erken gidelim” gibi şeyler yazın.</div>`}<div class="nform"><textarea id="nin" placeholder="Not yaz…"></textarea><button class="btn k" id="nsend">Ekle</button></div></div>`;
+  h+=`<div class="acts2" style="margin-top:18px">${S.archive[it.id]?`<button class="btn s" data-arch="${it.id}|0">🗄 Arşivden çıkar</button>`:a&&a.auto?`<span class="hint" style="padding:0">🗄 ${esc(a.r)}: otomatik arşivde</span>`:B?"":`<button class="btn s" data-arch="${it.id}|1">🗄 Arşive al</button>`}</div>`;
+  return h;
+}
+function openItem(i){const it=I[i];if(!it)return;openSheet(itemSheet(it),"item:"+i)}
+function dayNoteSheet(d){
+  return `<div class="dt"><div class="cat">Gün notu</div><h3>${fmtDay(d)}</h3></div><div class="notes">${S.notes.filter(n=>n.i==="day:"+d).map(noteHtml).join("")}<div class="nform"><textarea id="nin" placeholder="Bu gün için not: buluşma yeri, kıyafet, hatırlatma…"></textarea><button class="btn k" id="nsend" data-ni="day:${d}">Ekle</button></div></div>`;
+}
+function addSheet(d){
+  const pool=S.items.filter(x=>!dayOf(x)&&!archInfo(x)&&!isAlt(x)&&x.cat!=="otel"&&x.cat!=="ucus").sort((a,b)=>score(b)-score(a));
+  const last=dayItems(d).map(x=>tmin(timeOf(x))).filter(x=>x!=null).sort((a,b)=>b-a)[0];
+  const def=last!=null?String(Math.min(23,Math.floor(last/60)+2)).padStart(2,"0")+":00":"12:00";
+  const catOpt=Object.entries(CAT).filter(([k])=>k!=="ucus"&&k!=="otel").map(([k,c])=>`<option value="${k}" ${k==="deneyim"?"selected":""}>${c.n}</option>`).join("");
+  return `<div class="dt"><div class="cat">Programa ekle</div><h3>${fmtDay(d)}</h3></div>
+  <div class="plbox"><label>Saat</label><input id="at" type="time" value="${def}" step="900"><span style="font-size:12px;color:var(--mute)">Listeden ＋ ile bu saate eklenir</span></div>
+  <details class="plbox" style="display:block"><summary style="font-weight:800;cursor:pointer">✎ Kendi etkinliğini ekle (listede olmayan)</summary>
+   <div style="display:grid;gap:8px;margin-top:10px"><input id="ctitle" placeholder="Ne? ör. Arkadaşla buluşma, alışveriş" style="width:100%"><div style="display:flex;gap:8px"><select id="ccat" style="flex:1">${catOpt}</select><input id="ctime" type="time" value="${def}" step="900"></div><input id="caddr" placeholder="Adres ya da yer adı (opsiyonel, haritaya düşer)" style="width:100%"><button class="btn k" id="cadd" data-cd="${d}">＋ Ekle</button></div></details>
+  <h2 class="sec">Önerilenler<small>beğenilenler üstte</small></h2><div class="list pick">${pool.slice(0,80).map(x=>`<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${x.id}">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💚":anyLike(x.id)?" · 👍":""}</small></span></button><button class="btn s k" data-addto="${x.id}|${d}">＋</button></div>`).join("")}</div>`;
+}
+function stopSheet(i){
+  const it=I[i];const d=dayOf(it),t=timeOf(it);
+  const pts=it;const cands=S.items.filter(x=>x.id!==i&&!dayOf(x)&&!archInfo(x)&&x.cat!=="otel"&&x.cat!=="ucus")
+    .map(x=>({x,s:(x.cat===it.cat?3:0)+(both(x.id)?3:anyLike(x.id)?1.5:0)+(x.grp&&x.grp===it.grp?4:0)-(hasLL(x)&&hasLL(it)?hav(x,it)/2:1)}))
+    .sort((a,b)=>b.s-a.s).slice(0,12);
+  return `<div class="dt"><div class="cat">Durağı düzenle · ${fmtDay(d,1)} ${esc(t)}</div><h3>${esc(it.title)}</h3></div>
+  <div class="plbox"><label>Saat / gün</label><select id="sd">${DAYS.map(z=>`<option value="${z[0]}" ${d===z[0]?"selected":""}>${fmtDay(z[0])}</option>`).join("")}</select><input id="st" type="time" value="${esc(t)}" step="900"><button class="btn k s" id="ssave">Kaydet</button></div>
+  <div class="acts2"><button class="btn s" data-open="${i}">Detayı aç</button><button class="btn s r" id="srem">✕ Programdan çıkar</button></div>
+  <h2 class="sec">⇄ Yerine bunu koy<small>aynı gün ve saat</small></h2><div class="list pick">${cands.map(({x})=>`<div class="row">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💚":anyLike(x.id)?" · 👍":""}${hasLL(x)&&hasLL(it)?" · "+km(hav(x,it)*1.3)+" uzakta":""}</small></span><button class="btn s k" data-rep="${x.id}">⇄</button></div>`).join("")}</div>`;
+}
+function openStop(i){openSheet(stopSheet(i),"stop:"+i);
+  $("#ssave").onclick=()=>{doPlan(i,$("#sd").value,$("#st").value);toast("✓ "+fmtDay($("#sd").value,1)+" "+$("#st").value+" olarak kaydedildi");closeSheet()};
+  $("#srem").onclick=()=>{unplan(i);closeSheet()};
+  $("#sbody").querySelectorAll("[data-rep]").forEach(b=>b.onclick=()=>replaceStop(i,b.dataset.rep));
+}
+function guideSheet(){
+  const G=S.meta.guide||[];
+  const push=ls("nyc_push")==="1";
+  const sw="serviceWorker" in navigator&&navigator.serviceWorker.controller;
+  return `<div class="dt"><div class="cat">Rehber</div><h3>Dikkat edilecekler</h3><p style="color:var(--mute);font-size:13px">Claude bu listeyi her sabah güncel tutar.</p></div><div class="gd">${G.map((g,i)=>`<details ${i<2?"open":""}><summary><span class="ic">${esc(g.i||"•")}</span>${esc(g.t)}</summary><ul>${(g.items||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`).join("")}
+  <details open><summary><span class="ic">📱</span>Bu uygulama</summary><ul>
+  <li>${sw?"✓ Çevrimdışı hazır: internet yokken de son hâli açılır; gezdiğiniz harita bölgeleri ve fotoğraflar telefonda saklanır.":"Çevrimdışı mod bir sonraki açılışta hazır olur."}</li>
+  <li>${push?"✓ Bu telefonda bildirimler açık.":"Bildirimler kapalı: üstteki 🔕 Bildirim düğmesine basın. iPhone'da önce uygulamayı ana ekrana ekleyip oradan açmanız gerekir (iOS 16.4+)."}</li>
+  <li>Oylar, notlar ve ✓ işaretleri internet yokken de kaydedilir; bağlanınca gönderilir.</li>
+  <li><button class="btn s" id="dlmap">⬇ Manhattan haritasını çevrimdışı için indir</button></li>
+  </ul></details></div>`;
+}
+function openGuide(){openSheet(guideSheet(),"guide");const b=$("#dlmap");if(b)b.onclick=prefetchTiles}
+function bindSheet(){
+  const sb=$("#sbody");
+  sb.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{const [i,v]=b.dataset.v.split("|");doVote(i,+v)});
+  sb.querySelectorAll("[data-book]").forEach(b=>b.onclick=()=>doBook(b.dataset.book));
+  sb.querySelectorAll("[data-arch]").forEach(b=>b.onclick=()=>{const [i,a]=b.dataset.arch.split("|");doArchive(i,a==="1")});
+  sb.querySelectorAll("[data-delnote]").forEach(b=>b.onclick=()=>delNote(+b.dataset.delnote));
+  sb.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{const pre=b.dataset.preday;openItem(b.dataset.open);if(pre){const s=$("#pd");if(s&&!s.value){s.value=pre}}});
+  const ps=$("#psave");if(ps)ps.onclick=()=>{const i=sheetFor.slice(5);const d=$("#pd").value,t=$("#pt").value;doPlan(i,d,t);toast(d?"📅 "+fmtDay(d,1)+(t?" "+t:"")+" programına eklendi":"Programdan çıkarıldı")};
+  const ns=$("#nsend");if(ns)ns.onclick=()=>{const t=$("#nin").value;const i=ns.dataset.ni||(sheetFor||"").replace(/^item:/,"");doNote(i,t);$("#nin").value=""};
+  const dl=$("#dlmap");if(dl)dl.onclick=prefetchTiles;
+  sb.querySelectorAll("[data-addto]").forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.addto.split("|");const t=($("#at")||{}).value||"";doPlan(i,d,t);b.textContent="✓";b.disabled=true;toast("＋ "+I[i].title.split("·")[0].trim()+" · "+fmtDay(d,1)+" "+t)});
+  const ca=$("#cadd");if(ca)ca.onclick=()=>addCustom(ca.dataset.cd);
+}
+async function prefetchTiles(){
+  // Manhattan (Battery → Central Park North) + DUMBO, zoom 12-15
+  const box={n:40.80,s:40.695,w:-74.025,e:-73.935};
+  const t2=(lat,lng,z)=>{const n=2**z;const x=Math.floor((lng+180)/360*n);const r=lat*Math.PI/180;const y=Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n);return[x,y]};
+  const urls=[];for(let z=12;z<=15;z++){const [x1,y1]=t2(box.n,box.w,z),[x2,y2]=t2(box.s,box.e,z);for(let x=x1;x<=x2;x++)for(let y=y1;y<=y2;y++)urls.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`)}
+  toast("⬇ "+urls.length+" harita karosu indiriliyor…");let ok=0;
+  for(let i=0;i<urls.length;i+=6){await Promise.all(urls.slice(i,i+6).map(u=>fetch(u,{mode:"no-cors"}).then(()=>ok++).catch(()=>{})));await new Promise(r=>setTimeout(r,120))}
+  toast("✓ Harita çevrimdışı için hazır ("+ok+" karo)");
+}
+
+/* ---------- push ---------- */
+function b64u(s){const p="=".repeat((4-s.length%4)%4);const b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from([...b].map(c=>c.charCodeAt(0)))}
+async function enablePush(){
+  const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  if(!("serviceWorker" in navigator)||!("PushManager" in window)||!("Notification" in window)){
+    toast(/iPhone|iPad/.test(navigator.userAgent)&&!standalone?"iPhone'da: Paylaş → Ana Ekrana Ekle, sonra uygulamayı ana ekrandan açıp tekrar deneyin.":"Bu tarayıcı bildirim desteklemiyor.");return}
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=="granted"){toast("Bildirim izni verilmedi. Ayarlar'dan açabilirsiniz.");return}
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID)});
+    await rpc("trip_push_sub",{k:K,p:ME,s:sub.toJSON()});
+    ls("nyc_push","1");renderSign();toast("🔔 Bildirimler açık: yeni öneri, mesaj, not ve rezervasyonlarda haber vereceğim.");
+  }catch(e){toast("Bildirim açılamadı: "+(e.message||e))}
+}
+function openPushInfo(){openSheet(`<div class="dt"><div class="cat">Bildirimler</div><h3>🔔 Açık</h3><p>Şunlarda telefonuna bildirim gelir: Claude yeni öneri eklediğinde ya da sohbette cevap verdiğinde, ${PPL[OTHER()].n} mesaj ya da not yazdığında, bir rezervasyon ✓ işaretlendiğinde, ikiniz de aynı şeyi beğendiğinizde.</p></div><div class="acts2"><button class="btn" id="ptest">Test bildirimi</button><button class="btn" id="preset">Yeniden kaydet</button></div>`,"push");
+  $("#ptest").onclick=async()=>{try{await rpc("trip_push_test",{k:K,p:ME});toast("Gönderildi, birkaç saniye içinde gelir")}catch(e){toast("Test gönderilemedi")}};
+  $("#preset").onclick=()=>{ls("nyc_push",null);enablePush()};}
+
+/* ---------- render ---------- */
+function render(){
+  if(!S)return;
+  renderSign();renderTabs();
+  const v=$("#view");
+  $("#composer").classList.toggle("hide",tab!=="sohbet");
+  if(tab==="hat")v.innerHTML=rHat();
+  else if(tab==="rez")v.innerHTML=rRez();
+  else if(tab==="kesfet")v.innerHTML=rKesfet();
+  else if(tab==="harita"){v.innerHTML=rHarita();setTimeout(initMap,0)}
+  else if(tab==="sohbet"){v.innerHTML=rSohbet();setTimeout(()=>scrollTo(0,document.body.scrollHeight),0)}
+  bindView();
+}
+function renderSoft(){
+  if(!S)return;
+  const ae=document.activeElement;
+  if(ae&&(ae.tagName==="TEXTAREA"||ae.tagName==="INPUT")&&ae.id!=="kq"){pendingRender=true;renderTabs();return}
+  if(tab==="harita"&&LM){renderSign();renderTabs();drawMap(false)}
+  else{const y=scrollY;render();if(tab!=="sohbet")scrollTo(0,y)}
+  if(sheetFor&&sheetFor.startsWith("item:")){const it=I[sheetFor.slice(5)];if(it){const sc=$("#sbody").scrollTop;$("#sbody").innerHTML=itemSheet(it);bindSheet();$("#sbody").scrollTop=sc}}
+  else if(sheetFor==="guide"){$("#sbody").innerHTML=guideSheet();bindSheet()}
+}
+let pendingRender=false;
+document.addEventListener("focusout",()=>{if(pendingRender){pendingRender=false;setTimeout(renderSoft,150)}});
+function bindView(){
+  const v=$("#view");
+  v.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{selDay=b.dataset.day;ls("nyc_day",selDay);render()});
+  v.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openItem(b.dataset.open));
+  v.querySelectorAll("[data-more]").forEach(b=>b.onclick=e=>{e.stopPropagation();openStop(b.dataset.more)});
+  v.querySelectorAll("[data-v]").forEach(b=>b.onclick=e=>{e.stopPropagation();const [i,x]=b.dataset.v.split("|");doVote(i,+x)});
+  v.querySelectorAll("[data-book]").forEach(b=>b.onclick=()=>doBook(b.dataset.book));
+  v.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{if(b.dataset.grp){openGrp=b.dataset.grp;kFilter="all"}go(b.dataset.go)});
+  v.querySelectorAll("[data-kf]").forEach(b=>b.onclick=()=>{kFilter=b.dataset.kf;render()});
+  v.querySelectorAll("details.grp").forEach(d=>d.ontoggle=()=>ls("nyc_g_"+d.dataset.g,d.open?"1":"0"));
+  v.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{mapDay=b.dataset.md;ls("nyc_mday",mapDay);v.querySelectorAll("[data-md]").forEach(x=>x.classList.toggle("on",x===b));drawMap(true)});
+  v.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openSheet(addSheet(b.dataset.add),"add"));
+  v.querySelectorAll("[data-dnote]").forEach(b=>b.onclick=()=>openSheet(dayNoteSheet(b.dataset.dnote),"daynote"));
+  v.querySelectorAll("[data-dmap]").forEach(b=>b.onclick=()=>{mapDay=b.dataset.dmap;ls("nyc_mday",mapDay);go("harita")});
+  v.querySelectorAll("[data-delnote]").forEach(b=>b.onclick=()=>delNote(+b.dataset.delnote));
+  v.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{rezMode=b.dataset.rm;ls("nyc_rezmode",rezMode);render()});
+  v.querySelectorAll("[data-exp]").forEach(b=>b.onclick=()=>openExpense({item:b.dataset.exp}));
+  v.querySelectorAll("[data-delexp]").forEach(b=>b.onclick=()=>{if(!confirm("Bu harcama silinsin mi?"))return;const id=+b.dataset.delexp;S.expenses=S.expenses.filter(e=>e.id!==id);send("trip_expense",{p:ME,title:"",amount:0,cur:"USD",paid_by:ME,split:"both",item_id:null,cat:null,del:id});renderSoft()});
+  const ea=$("#eadd");if(ea)ea.onclick=()=>openExpense({});
+  const bs=$("#bset");if(bs)bs.onclick=setBudget;
+  const kq=$("#kq");if(kq){kq.oninput=()=>{kQuery=kq.value;clearTimeout(kq._t);kq._t=setTimeout(()=>{const p=kq.selectionStart;render();const n=$("#kq");n.focus();n.setSelectionRange(p,p)},250)}}
+}
+$("#csend").onclick=()=>{const t=$("#cin");doChat(t.value);t.value="";t.style.height="42px"};
+$("#cin").addEventListener("input",e=>{const t=e.target;t.style.height="42px";t.style.height=Math.min(120,t.scrollHeight)+"px"});
+
+/* ---------- gate ---------- */
+function gate(){
+  const g=$("#gate");g.classList.add("on");
+  const snow=`<div class="snow">${Array.from({length:30},(_,i)=>`<i style="position:absolute;left:${(i*37)%100}%;top:${(i*53)%100}%;width:${2+i%3}px;height:${2+i%3}px;border-radius:50%;background:#fff;opacity:${.3+(i%5)/10}"></i>`).join("")}</div>`;
+  if(!K){g.innerHTML=snow+`<span class="bul" style="width:56px;height:56px;background:var(--red);color:#fff;font-size:20px">NY</span><h1>Noel'den<br>Yılbaşına</h1><p>Erişim kodunu girin (linkte vardı).</p><input id="gk" placeholder="nyc-…" autocapitalize="off" autocomplete="off"><button class="btn r" id="gok" style="height:50px;width:100%;justify-content:center;font-size:17px">Devam</button>`;
+    $("#gok").onclick=()=>{const v=$("#gk").value.trim();if(!v)return;K=v;ls("nyc_k",v);g.classList.remove("on");boot()};return}
+  pickPerson();
+}
+function pickPerson(){
+  const g=$("#gate");g.classList.add("on");
+  g.innerHTML=`<span class="bul" style="width:56px;height:56px;background:var(--red);color:#fff;font-size:20px">NY</span><h1>Kimsin?</h1><p>Oylar, notlar ve bildirimler kişiye göre ayrılıyor.</p><div class="who">${Object.entries(PPL).map(([k,p])=>`<button data-p="${k}"><span class="bul" style="background:${p.c}">${p.l}</span>${p.n}</button>`).join("")}</div>`;
+  g.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{ME=b.dataset.p;ls("nyc_me",ME);g.classList.remove("on");render();if(ls("nyc_push")==="1")enablePush()})
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  if(!K)return gate();
+  try{const c=ls("nyc_state");if(c){norm(JSON.parse(c));}}catch(e){}
+  if(!ME)pickPerson();
+  if(S)render();else $("#view").innerHTML=`<div class="empty">Yükleniyor…</div>`;
+  lastSnap=null;load();
+  setInterval(()=>{if(!document.hidden)load()},15000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){load();renderSign()}});
+  markSeen();
+}
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+  navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="open"&&e.data.tab)go(e.data.tab)});
+}
+window.addEventListener("hashchange",()=>{const t=location.hash.slice(1);if(t&&t!==tab&&["hat","rez","kesfet","harita","sohbet"].includes(t)){tab=t;render()}});
+boot();
+</script>
+</body>
+</html>
