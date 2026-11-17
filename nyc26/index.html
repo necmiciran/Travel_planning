@@ -1010,9 +1010,10 @@ function itemSheet(it){
   h+=`<div class="dt"><div class="hero" style="padding:0">${bul(it.cat,52)}<div><div class="cat">${C.n}${it.taste?" · NY klasiği":""}${it.by&&PPL[it.by]?" · "+PPL[it.by].n+" buldu":""}</div><h3>${esc(it.title)}</h3></div></div>${it.sub?`<div class="sb">${esc(it.sub)}</div>`:""}
   <div class="tags" style="margin-top:8px">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${needsBook(it)&&!B?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet / rezervasyon gerekli</span>`:""}${both(it.id)?`<span class="tag both">💚 ikiniz de beğendiniz</span>`:""}${it.must?`<span class="tag urg">kesin</span>`:""}${a?`<span class="tag ar">🗄 ${esc(a.r)}</span>`:""}</div>
   ${it.note?`<div class="alert y" style="margin:10px 0 0;width:100%"><span class="ai">⚠</span><div><span>${esc(it.note)}</span></div></div>`:""}
-  ${it.order?`<div class="fun" style="background:rgba(255,69,58,.18);border-color:var(--red)"><b>🍽 Burada ne yenir:</b> ${esc(it.order)}</div>`:""}
-  ${it.fun?`<div class="fun"><b>🎬 İlginç bilgi:</b> ${esc(it.fun)}</div>`:""}
-  ${it.season||it.dates?`<div class="fun" style="background:#e8f1fd;border-color:var(--blue)"><b>📅 Bu tarihlerde:</b> ${esc(it.season||it.dates)}${it.src_url?` · <a href="${esc(it.src_url)}" target="_blank" rel="noopener">kaynak</a>`:""}</div>`:""}
+  ${it.order?`<div class="fun food">🍽<div><b>Burada ne yenir:</b> ${esc(it.order)}</div></div>`:""}
+  ${it.fun?`<div class="fun">✨<div><b>İlginç bilgi:</b> ${esc(it.fun)}</div></div>`:""}
+  ${it.season||it.dates?`<div class="fun season">📅<div><b>Bu tarihlerde:</b> ${esc(it.season||it.dates)}${it.src_url?` · <a href="${esc(it.src_url)}" target="_blank" rel="noopener">kaynak</a>`:""}</div></div>`:""}
+  ${it.warn?`<div class="fun warn">⚠<div><b>Güvenlik:</b> ${esc(it.warn)}</div></div>`:""}
   ${it.desc?`<p>${esc(it.desc)}</p>`:""}</div>`;
   const F=[];
   if(d&&it.cat!=="otel")F.push(["Gün",fmtDay(d)+(t?" · "+t:"")]);else if(it.when)F.push(["Ne zaman",it.when]);
