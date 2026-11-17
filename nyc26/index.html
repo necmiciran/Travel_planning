@@ -359,6 +359,20 @@ details.grp[open]>.list{animation:rise .35s var(--spring) both}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.12s!important}.snow{display:none}}
 @media (prefers-reduced-transparency:reduce){nav.tabs,#sheet,.sign,.composer,#toast{background:#1b1d2a;-webkit-backdrop-filter:none;backdrop-filter:none}}
 .i .sf{fill:currentColor;stroke:none}
+#ppush .fbadge{min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:10.5px;font-weight:800;display:inline-grid;place-items:center;padding:0 5px;font-family:var(--m)}
+.fd{border-radius:var(--r);background:var(--glass);border:.5px solid var(--line);padding:12px}
+.fd.new{background:linear-gradient(135deg,rgba(255,55,95,.14),rgba(191,90,242,.08));border-color:rgba(255,55,95,.35)}
+.fd .fh{display:flex;gap:10px;align-items:center}
+.fd .fi{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--grad);color:#fff;flex:none}
+.fd .fh b{display:block;font-size:14.5px;font-weight:700;line-height:1.25}
+.fd .fh small{color:var(--t3);font-size:11.5px}.fd .fh em{font-style:normal;color:#ff6b88;font-weight:700}
+.fd .fb{margin-top:8px;font-size:13.5px;color:var(--t2);line-height:1.45}
+.fd .fl{margin-top:10px;display:grid;gap:6px}
+.fd .fr{display:flex;gap:10px;align-items:center;text-align:left;padding:6px;border-radius:12px;background:rgba(255,255,255,.05)}
+.fd .fr .ph{width:40px;height:40px;border-radius:10px;background:#222 center/cover;flex:none}
+.fd .fr .tx{flex:1;min-width:0}.fd .fr b{display:block;font-size:13.5px;font-weight:650;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd .fr small{display:block;font-size:11.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fd .fr>.i{color:var(--t3);width:15px;height:15px}
 </style>
 </head>
 <body>
@@ -557,7 +571,7 @@ let K=qs.get("k")||ls("nyc_k");if(qs.get("k"))ls("nyc_k",qs.get("k"));
 let ME=ls("nyc_me");
 const OTHER=()=>ME==="necmi"?"ahmet":"necmi";
 let S=null,I={},V={necmi:{},ahmet:{}};
-let tab=(location.hash||"").slice(1)||ls("nyc_tab")||"hat";
+let wantFeed=location.hash==="#bildirim";let tab=(location.hash||"").slice(1);if(!["hat","rez","kesfet","harita","sohbet"].includes(tab))tab=ls("nyc_tab")||"hat";
 if(!["hat","rez","kesfet","harita","sohbet"].includes(tab))tab="hat";
 let selDay=null,kFilter="all",kQuery="",mapDay=ls("nyc_mday")||"all",sheetFor=null;
 let OB=[];try{OB=JSON.parse(ls("nyc_ob")||"[]")}catch(e){OB=[]}
@@ -571,7 +585,7 @@ async function rpc(fn,args){
   const t=await r.text();return t?JSON.parse(t):null;
 }
 function norm(s){
-  S=Object.assign({items:[],votes:[],plan:{},ptime:{},booked:{},archive:{},notes:[],expenses:[],chat:[],meta:{}},s||{});
+  S=Object.assign({items:[],votes:[],plan:{},ptime:{},booked:{},archive:{},notes:[],expenses:[],chat:[],meta:{},feed:[]},s||{});S.feed=S.feed||[];
   for(const k of["plan","ptime","booked","archive","meta"])S[k]=S[k]||{};
   I={};for(const it of S.items)I[it.id]=it;
   V={necmi:{},ahmet:{}};for(const v of S.votes)if(V[v.p])V[v.p][v.i]=v.v;
@@ -594,7 +608,7 @@ async function load(){
     if(OB.length){loading=false;return}
     const s=await rpc("trip_state",{k:K});
     ls("nyc_state",JSON.stringify(s));norm(s);
-    online(true);detectNew();renderSoft();
+    online(true);detectNew();renderSoft();if(wantFeed){wantFeed=false;history.replaceState(null,"",location.pathname+location.search+"#"+tab);openFeed()}
   }catch(e){
     if(e.http===400||e.http===401){ls("nyc_k",null);K=null;gate();}
     else online(false);
@@ -651,7 +665,7 @@ function calUrl(it){
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&ctz=America/New_York&text="+encodeURIComponent(it.title)+"&dates="+st+"/"+e2+"&location="+encodeURIComponent(it.addr||it.area||"")+"&details="+encodeURIComponent((it.desc||"").slice(0,600))}
 function nyNow(){const s=new Date().toLocaleString("en-CA",{timeZone:"America/New_York",hour12:false});return{d:s.slice(0,10),t:s.slice(12,17)}}
 function ago(ts){const s=(Date.now()-ts)/1000;if(s<60)return"şimdi";if(s<3600)return Math.floor(s/60)+" dk";if(s<86400)return Math.floor(s/3600)+" sa";return Math.floor(s/86400)+" g"}
-function toast(t){const n=$("#toast");t=String(t);EMO_RE.lastIndex=0;const m=t.match(/^\s*(\S+?)\uFE0F?\s/);let icn="bell";if(m&&EMO[m[1]]){icn=EMO[m[1]];t=t.slice(m[0].length)}n.innerHTML=`<span class="ti">${ic(icn)}</span><span>${esc(stripEmojiText(t))}</span>`;n.classList.add("on");clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove("on"),4200)}
+function toast(t,fn){const n=$("#toast");n.onclick=fn?()=>{n.classList.remove("on");fn()}:null;t=String(t);EMO_RE.lastIndex=0;const m=t.match(/^\s*(\S+?)\uFE0F?\s/);let icn="bell";if(m&&EMO[m[1]]){icn=EMO[m[1]];t=t.slice(m[0].length)}n.innerHTML=`<span class="ti">${ic(icn)}</span><span>${esc(stripEmojiText(t))}</span>`;n.classList.add("on");clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove("on"),4200)}
 
 /* ---------- actions ---------- */
 function doVote(i,v){const cur=mv(i);const nv=cur===v?0:v;V[ME][i]=nv;S.votes=S.votes.filter(x=>!(x.p===ME&&x.i===i));if(nv)S.votes.push({p:ME,i,v:nv});send("trip_vote",{p:ME,i,val:nv});if(nv===1&&ov(i)===1){celebrate("match","İkiniz de beğendiniz!",I[i].title)}else if(nv)haptic(10);if(lastSnap)lastSnap.m=matchCount();renderSoft()}
@@ -689,9 +703,9 @@ function renderSign(){
   const push=ls("nyc_push")==="1";
   $("#sign").innerHTML=`<div class="signrow"><span class="bul logo">NY</span><div class="tt"><h1>Noel'den Yılbaşına</h1><div class="sub">25 Ara → 2 Oca · Necmi & Ahmet</div><div class="clk" id="clk">${clocks()}</div></div>${cd}</div>
   <div class="sbtns"><button class="pill me" id="pme"><span class="bul dot" style="background:${me.c};color:#fff">${me.l}</span>${me.n} · ${meLikes}👍</button><span class="pill"><span class="bul dot" style="background:${ot.c};color:#fff">${ot.l}</span>${ot.n} · ${otLikes}👍</span><span class="sp"></span>
-  <button class="pill ${push?"":"warn"}" id="ppush">${push?"🔔":"🔕 Bildirim"}</button><button class="pill" id="pguide">ℹ Rehber</button></div>`;
+  <button class="pill ${unreadFeed()?"warn":""}" id="ppush">${push?"🔔":"🔕"} Bildirimler${unreadFeed()?`<span class="fbadge">${unreadFeed()}</span>`:""}</button><button class="pill" id="pguide">ℹ Rehber</button></div>`;
   $("#pme").onclick=()=>{if(confirmSwitch())pickPerson()};
-  $("#ppush").onclick=()=>push?openPushInfo():enablePush();
+  $("#ppush").onclick=openFeed;
   $("#pguide").onclick=openGuide;
 }
 function confirmSwitch(){return true}
@@ -718,6 +732,39 @@ function renderTabs(){
 }
 function go(t){if(tab===t){scrollTo({top:0,behavior:"smooth"});return}tab=t;ls("nyc_tab",t);history.replaceState(null,"",location.pathname+location.search+"#"+t);render();animView();scrollTo(0,0);markSeen()}
 
+/* ---------- notification center ---------- */
+const FEED_IC={items:"spark",upd:"swap",chat:"chat",book:"ticket",booked:"ticket",note:"note",vote:"heart",match:"heart",arch:"archive",plan:"cal",exp:"card",guide:"info",test:"bell"};
+function feedMine(){return (S&&S.feed||[]).filter(f=>!f.to||!f.to.length||f.to.includes(ME))}
+function unreadFeed(){return feedMine().filter(f=>f.ts>(seen.f||0)).length}
+function feedIcon(f){const t=f.tag||"";if(FEED_IC[t])return FEED_IC[t];const k=Object.keys(FEED_IC).find(k=>t.startsWith(k));return k?FEED_IC[k]:"bell"}
+function feedSheet(){
+  const push=ls("nyc_push")==="1",L=feedMine(),last=seen.fPrev||0;
+  let h=`<div class="dt"><div class="cat">Bildirim merkezi</div><h3>Bildirimler</h3><p style="font-size:13.5px;color:var(--t2)">Claude'un eklediği yeni öneriler, güncellenen kartlar, ${PPL[OTHER()].n}'in mesaj, not ve rezervasyonları burada birikir. Bir öneriye dokununca detayı açılır.</p></div>
+  <div class="acts2">${push?`<button class="btn s" id="ptest">${ic("bell")} Test bildirimi</button><button class="btn s" id="preset">Yeniden kaydet</button>`:`<button class="btn k" id="pon">${ic("bell")} Telefona bildirim açılsın</button>`}</div>`;
+  if(!L.length)return h+`<div class="empty">Henüz bildirim yok.</div>`;
+  h+=`<div style="margin:14px 16px 0;display:grid;gap:10px">`;
+  for(const f of L){
+    const isNew=f.ts>last;const ids=(f.ids||[]).filter(i=>I[i]);const ag=ago(f.ts);
+    h+=`<div class="fd ${isNew?"new":""}"><div class="fh"><span class="fi">${ic(feedIcon(f))}</span><div style="flex:1;min-width:0"><b>${esc(stripEmojiText(f.t||""))}</b><small>${ag}${ag==="şimdi"?"":" önce"}${isNew?" · <em>yeni</em>":""}</small></div></div>`;
+    if(ids.length){h+=`<div class="fl">${ids.slice(0,12).map(i=>{const it=I[i];const ph=(it.photos||[])[0];const a=archInfo(it);return `<button class="fr" data-open="${i}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,40)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([CAT[it.cat]?CAT[it.cat].n:"",it.when?(isDate(it.when)?fmtDay(it.when,1):String(it.when).slice(0,40)):"",a?"arşivde":""].filter(Boolean).join(" · "))}</small></span>${ic("ext")}</button>`}).join("")}${ids.length>12?`<div class="hint" style="padding:6px 4px">+${ids.length-12} tane daha, Keşfet'te</div>`:""}</div>`}
+    else if(f.b)h+=`<div class="fb">${esc(stripEmojiText(f.b)).replace(/\n/g,"<br>")}</div>`;
+    if(!ids.length&&f.tab&&f.tab!=="bildirim")h+=`<button class="btn s" data-fgo="${esc(f.tab)}" style="margin-top:8px">Aç ${ic("ext")}</button>`;
+    h+=`</div>`;
+  }
+  return h+`</div>`;
+}
+function openFeed(){
+  if(!S)return;
+  if(sheetFor!=="feed"){seen.fPrev=seen.f||0}
+  seen.f=Date.now();ls("nyc_seen2",JSON.stringify(seen));
+  openSheet(feedSheet(),"feed");renderSign();
+  const sb=$("#sbody");
+  sb.querySelectorAll("[data-fgo]").forEach(b=>b.onclick=()=>{closeSheet();go(b.dataset.fgo)});
+  const pt=$("#ptest");if(pt)pt.onclick=async()=>{try{await rpc("trip_push_test",{k:K,p:ME});toast("🔔 Gönderildi, birkaç saniye içinde gelir")}catch(e){toast("Test gönderilemedi")}};
+  const pr=$("#preset");if(pr)pr.onclick=()=>{ls("nyc_push",null);enablePush()};
+  const po=$("#pon");if(po)po.onclick=enablePush;
+}
+
 /* ---------- new-item detection ---------- */
 function badges(){
   if(!S)return{};
@@ -743,7 +790,7 @@ function detectNew(){
   if(lastSnap){
     const newC=S.chat.slice(lastSnap.c).filter(m=>m.p!==ME||m.role==="claude");
     if(newC.length){const m=newC[newC.length-1];toast((m.role==="claude"?"🤖 Claude: ":"💬 "+PPL[m.p].n+": ")+m.text.slice(0,90))}
-    else if(snap.i>lastSnap.i)toast("✨ "+(snap.i-lastSnap.i)+" yeni öneri eklendi");
+    else if(snap.i>lastSnap.i){const nw=S.items.slice(-(snap.i-lastSnap.i)).map(x=>x.title.split("·")[0].trim());toast("✨ "+nw.length+" yeni öneri: "+nw.slice(0,3).join(", ")+(nw.length>3?"…":"")+" (dokun)",openFeed)}
     else if(snap.n>lastSnap.n){const n=S.notes[S.notes.length-1];if(n&&n.p!==ME)toast("📝 "+PPL[n.p].n+" not yazdı: "+n.t.slice(0,80))}
   }
   lastSnap=snap;
@@ -849,19 +896,17 @@ function balances(){
   return{paid,owe,tot,cats,bal:{necmi:paid.necmi-owe.necmi,ahmet:paid.ahmet-owe.ahmet}};
 }
 function rBudget(){
-  const B=balances(),bud=(S.meta.budget||{})[ME]||0,my=B.owe[ME];
-  let h=`<div class="prog"><small>Toplam harcama (2 kişi)</small><br><b style="font-size:26px;font-stretch:75%">${fmtN(B.tot)} TL</b> <span class="mono" style="color:var(--mute)">≈ $${fmtN(B.tot/FX())}</span>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">${["necmi","ahmet"].map(p=>`<div style="border-top:3px solid ${PPL[p].c};padding-top:6px"><small>${PPL[p].n} ödedi</small><br><b>${fmtN(B.paid[p])} TL</b><br><small>payına düşen ${fmtN(B.owe[p])} TL</small></div>`).join("")}</div>`;
-  const d=B.bal.necmi;
-  h+=`<div style="margin-top:10px;font-weight:800">${Math.abs(d)<1?"✓ Hesap denk":(d>0?"Ahmet → Necmi: ":"Necmi → Ahmet: ")+fmtN(Math.abs(d))+" TL"}</div>`;
-  h+=`<div style="margin-top:12px"><small>${PPL[ME].n} · kişisel bütçe</small>${bud?`<div class="bar"><i style="width:${Math.min(100,Math.round(my/bud*100))}%;background:${my>bud?"var(--red)":"var(--green)"}"></i></div><small>${fmtN(my)} / ${fmtN(bud)} TL · kalan ${fmtN(bud-my)} TL</small>`:`<br><small>Henüz bütçe girmediniz.</small>`} <button class="btn s" id="bset" style="margin-top:6px">${bud?"Bütçeyi değiştir":"＋ Bütçe belirle"}</button></div>
+  const B=balances(),bud=(S.meta.budget||{})[ME]||0,my=B.tot/2;
+  let h=`<div class="prog"><small>Toplam harcama</small><br><b class="big">${fmtN(B.tot)} TL</b> <span class="mono" style="color:var(--t2)">≈ $${fmtN(B.tot/FX())}</span>
+  <div style="margin-top:6px"><small>Kişi başı ≈ ${fmtN(my)} TL</small></div>`;
+  h+=`<div style="margin-top:12px"><small>${PPL[ME].n} · kişisel bütçe</small>${bud?`<div class="bar"><i style="width:${Math.min(100,Math.round(my/bud*100))}%;background:${my>bud?"var(--red)":"linear-gradient(90deg,#30d158,#64d2ff)"}"></i></div><small>${fmtN(my)} / ${fmtN(bud)} TL · kalan ${fmtN(bud-my)} TL</small>`:`<br><small>Henüz bütçe girmediniz.</small>`} <button class="btn s" id="bset" style="margin-top:6px">${bud?"Bütçeyi değiştir":"＋ Bütçe belirle"}</button></div>
   <div class="hint" style="padding:6px 0 0">Kur: 1 $ = ${fmtN(FX(),2)} TL${S.meta.fx&&S.meta.fx.date?" ("+esc(S.meta.fx.date)+")":""} · Claude her sabah günceller</div></div>`;
   h+=`<div class="dact"><button class="btn k" id="eadd">＋ Harcama ekle</button></div>`;
   const cs=Object.entries(B.cats).sort((a,b)=>b[1]-a[1]);
-  if(cs.length){h+=`<h2 class="sec">Kategorilere göre</h2><div class="wrap">${cs.map(([c,v])=>`<div style="display:flex;align-items:center;gap:8px;margin:6px 0">${CAT[c]?bul(c,22):`<span class="bul" style="width:22px;height:22px;background:linear-gradient(140deg,#636366,#aeaeb2);color:#fff;font-size:10px">•</span>`}<div style="flex:1"><div style="font-size:13px;font-weight:700">${CAT[c]?CAT[c].n:"Diğer"}<span class="mono" style="float:right">${fmtN(v)} TL</span></div><div class="bar" style="height:6px;background:var(--paper2);margin-top:3px"><i style="display:block;height:100%;width:${Math.round(v/B.tot*100)}%;background:${CAT[c]?CAT[c].c:"#999"}"></i></div></div></div>`).join("")}</div>`}
+  if(cs.length){h+=`<h2 class="sec">Kategorilere göre</h2><div class="wrap">${cs.map(([c,v])=>`<div style="display:flex;align-items:center;gap:8px;margin:6px 0">${CAT[c]?bul(c,22):`<span class="bul" style="width:22px;height:22px;background:linear-gradient(140deg,#636366,#aeaeb2);color:#fff;font-size:10px">•</span>`}<div style="flex:1"><div style="font-size:13px;font-weight:700">${CAT[c]?CAT[c].n:"Diğer"}<span class="mono" style="float:right">${fmtN(v)} TL</span></div><div class="bar" style="height:6px;background:var(--paper2);margin-top:3px"><i style="display:block;height:100%;width:${Math.round(v/B.tot*100)}%;background:${CAT[c]?`linear-gradient(90deg,${CAT[c].g})`:"#999"}"></i></div></div></div>`).join("")}</div>`}
   const unpaid=S.items.filter(x=>S.booked[x.id]&&!S.expenses.some(e=>e.i===x.id));
   if(unpaid.length)h+=`<h2 class="sec">Alındı ama tutarı girilmedi<small>${unpaid.length}</small></h2><div class="list">${unpaid.map(x=>`<div class="row">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(String(x.price||"").slice(0,60))}</small></span><button class="btn s k" data-exp="${x.id}">＋ Tutar</button></div>`).join("")}</div>`;
-  h+=`<h2 class="sec">Harcamalar<small>${S.expenses.length}</small></h2><div class="list">${S.expenses.slice().reverse().map(e=>`<div class="row">${CAT[e.cat]?bul(e.cat):`<span class="bul" style="width:30px;height:30px;background:linear-gradient(140deg,#636366,#aeaeb2);color:#fff">•</span>`}<span class="tx"><b>${esc(e.t)}</b><small>${PPL[e.pb]?PPL[e.pb].n:""} ödedi · ${e.sp==="both"?"yarı yarıya":(PPL[e.sp]?PPL[e.sp].n+"'in":"")} · ${ago(e.ts)} önce</small></span><span style="text-align:right"><b class="mono" style="font-size:13px">${money(e.a,e.c)}</b>${e.c!=="TRY"?`<br><small class="mono" style="color:var(--mute)">${fmtN(toTRY(e.a,e.c))} TL</small>`:""}${e.id>0?`<br><button class="del" data-delexp="${e.id}" style="font-size:11px;color:var(--mute)">sil</button>`:""}</span></div>`).join("")||`<div class="empty">Henüz harcama yok. Bir rezervasyonu ✓ işaretleyince tutarını sorarım; ya da ＋ Harcama ekle.</div>`}</div>`;
+  h+=`<h2 class="sec">Harcamalar<small>${S.expenses.length}</small></h2><div class="list">${S.expenses.slice().reverse().map(e=>`<div class="row">${CAT[e.cat]?bul(e.cat):`<span class="bul" style="width:30px;height:30px;background:linear-gradient(140deg,#636366,#aeaeb2);color:#fff">•</span>`}<span class="tx"><b>${esc(e.t)}</b><small>${CAT[e.cat]?CAT[e.cat].n:"Diğer"} · ${ago(e.ts)} önce</small></span><span style="text-align:right"><b class="mono" style="font-size:13px">${money(e.a,e.c)}</b>${e.c!=="TRY"?`<br><small class="mono" style="color:var(--mute)">${fmtN(toTRY(e.a,e.c))} TL</small>`:""}${e.id>0?`<br><button class="del" data-delexp="${e.id}" style="font-size:11px;color:var(--mute)">sil</button>`:""}</span></div>`).join("")||`<div class="empty">Henüz harcama yok. Bir rezervasyonu ✓ işaretleyince tutarını sorarım; ya da ＋ Harcama ekle.</div>`}</div>`;
   return h;
 }
 function guessAmt(it){const p=String(it&&it.price||"");let m=/([\d.]+)\s*TL/.exec(p);if(m)return{a:+m[1].replace(/\./g,""),c:"TRY"};m=/\$\s?([\d.,]+)/.exec(p);if(m)return{a:+m[1].replace(",",".")*2,c:"USD"};return{a:"",c:"USD"}}
@@ -870,12 +915,10 @@ function openExpense(o){
   const catOpt=Object.entries(CAT).filter(([k])=>k!=="ucus").map(([k,c])=>`<option value="${k}" ${it&&it.cat===k?"selected":""}>${c.n}</option>`).join("")+`<option value="ucus">Uçuş / ulaşım</option><option value="diger" ${!it?"selected":""}>Diğer</option>`;
   openSheet(`<div class="dt"><div class="cat">Harcama ${it?"· "+esc(it.title):""}</div><h3>Ne kadar ödendi?</h3>${it&&it.price?`<p style="color:var(--mute);font-size:13px">Kartta yazan: ${esc(it.price)}</p>`:""}</div>
   <div class="plbox" style="display:grid;gap:8px"><input id="et" placeholder="Açıklama" value="${esc(it?it.title.split("·")[0].trim():"")}"><div style="display:flex;gap:8px"><input id="ea" type="number" inputmode="decimal" step="0.01" placeholder="Tutar" value="${g.a||""}" style="flex:1;min-width:0"><select id="ec"><option ${g.c==="USD"?"selected":""}>USD</option><option ${g.c==="TRY"?"selected":""}>TRY</option><option>EUR</option></select></div>
-  <label>Kim ödedi?</label><div style="display:flex;gap:8px">${["necmi","ahmet"].map(p=>`<label style="display:flex;gap:6px;align-items:center;font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink);width:auto"><input type="radio" name="epb" value="${p}" ${p===ME?"checked":""}> ${PPL[p].n}</label>`).join("")}</div>
-  <label>Kimin harcaması?</label><select id="esp"><option value="both">İkimizin · yarı yarıya</option><option value="necmi">Sadece Necmi'nin</option><option value="ahmet">Sadece Ahmet'in</option></select>
   <label>Kategori</label><select id="ecat">${catOpt}</select>
   <button class="btn k" id="esave" style="justify-content:center;height:44px">Kaydet</button>${it?`<button class="btn" id="eskip" style="justify-content:center">Sonra gireceğim</button>`:""}</div>`,"exp");
   $("#esave").onclick=()=>{const a=parseFloat(String($("#ea").value).replace(",","."));const t=$("#et").value.trim();if(!(a>0)||!t)return toast("Tutar ve açıklama girin");
-    const pb=(document.querySelector('input[name=epb]:checked')||{}).value||ME;const e={id:-Date.now(),t,a,c:$("#ec").value,pb,sp:$("#esp").value,i:it?it.id:null,cat:$("#ecat").value,by:ME,ts:Date.now()};
+    const pb=ME;const e={id:-Date.now(),t,a,c:$("#ec").value,pb,sp:"both",i:it?it.id:null,cat:$("#ecat").value,by:ME,ts:Date.now()};
     S.expenses.push(e);send("trip_expense",{p:ME,title:t,amount:a,cur:e.c,paid_by:pb,split:e.sp,item_id:e.i,cat:e.cat,del:null});closeSheet();toast("💳 "+money(a,e.c)+" kaydedildi");renderSoft()};
   const sk=$("#eskip");if(sk)sk.onclick=closeSheet;
 }
@@ -1147,6 +1190,7 @@ function renderSoft(){
   else{const y=scrollY;render();if(tab!=="sohbet")scrollTo(0,y)}
   if(sheetFor&&sheetFor.startsWith("item:")){const it=I[sheetFor.slice(5)];if(it){const sc=$("#sbody").scrollTop;$("#sbody").innerHTML=itemSheet(it);bindSheet();$("#sbody").scrollTop=sc}}
   else if(sheetFor==="guide"){$("#sbody").innerHTML=guideSheet();bindSheet()}
+  else if(sheetFor==="feed"&&unreadFeed()){const sc=$("#sbody").scrollTop;openFeed();$("#sbody").scrollTop=sc}
 }
 let pendingRender=false;
 document.addEventListener("focusout",()=>{if(pendingRender){pendingRender=false;setTimeout(renderSoft,150)}});
@@ -1207,9 +1251,9 @@ if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{r.update().catch(()=>{})}).catch(()=>{});
   const hadCtl=!!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!hadCtl||_swReloading)return;_swReloading=true;const ae=document.activeElement;if(ae&&(ae.tagName==="TEXTAREA"||ae.tagName==="INPUT")&&ae.value){toast("✨ Yeni sürüm hazır, uygulamayı yeniden açınca gelecek");return}sessionStorage.setItem("nyc_spl","1");location.reload()});
-  navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="open"&&e.data.tab)go(e.data.tab)});
+  navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="open"&&e.data.tab){if(e.data.tab==="bildirim")openFeed();else go(e.data.tab)}});
 }
-window.addEventListener("hashchange",()=>{const t=location.hash.slice(1);if(t&&t!==tab&&["hat","rez","kesfet","harita","sohbet"].includes(t)){tab=t;render()}});
+window.addEventListener("hashchange",()=>{const t=location.hash.slice(1);if(t==="bildirim"){openFeed();return}if(t&&t!==tab&&["hat","rez","kesfet","harita","sohbet"].includes(t)){tab=t;render()}});
 boot();
 </script>
 </body>
