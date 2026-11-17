@@ -138,7 +138,7 @@ h2.sec small{font-family:var(--m);font-size:12px;color:var(--t3);font-weight:600
 .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .tag{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:3px 7px;border-radius:7px;background:rgba(255,255,255,.08);color:var(--t2);white-space:nowrap}
 .tag .i{width:12px;height:12px}
-.tag.ok{background:rgba(48,209,88,.18);color:#5fe07f}.tag.need{background:rgba(255,159,10,.18);color:#ffb340}.tag.both{background:rgba(100,210,255,.18);color:#8fe3ff}
+.tag.ok{background:rgba(48,209,88,.18);color:#5fe07f}.tag.need{background:rgba(255,159,10,.18);color:#ffb340}.tag.both{background:rgba(166,228,255,.2);color:#c4efff}
 .tag.urg{background:rgba(255,69,58,.2);color:#ff7b73}.tag.ar{background:rgba(255,255,255,.06);color:var(--t3)}.tag.by{background:rgba(10,132,255,.18);color:#66b3ff}.tag.taste{background:rgba(247,199,91,.16);color:var(--gold)}
 .leg{min-height:24px;color:var(--t3);font-size:12px}
 .leg .lx{grid-column:3;margin-left:12px;padding:2px 0 4px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -182,12 +182,12 @@ h2.sec small{font-family:var(--m);font-size:12px;color:var(--t3);font-weight:600
 .vq{display:flex;gap:6px;flex:none}
 .vq button{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.07);border:.5px solid var(--line);color:var(--t2);transition:transform .15s var(--spring),background .2s}
 .vq button .i{width:18px;height:18px}
-.vq button.on.up{background:linear-gradient(135deg,#8fe3ff,#40c8ff);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(100,210,255,.4)}
+.vq button.on.up{background:linear-gradient(135deg,#c4efff,#8ad9ff);color:#0b3a52;border-color:transparent;box-shadow:0 4px 12px rgba(166,228,255,.45)}
 .vq button.on.dn{background:linear-gradient(135deg,#ff453a,#d70015);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(255,69,58,.35)}
 .row.nope>button:first-child{opacity:.45}
 .who{display:flex;gap:3px;justify-content:flex-end;margin-top:5px}
 .who i{font-style:normal;font-size:9.5px;font-weight:800;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);color:var(--t3)}
-.who i.l{background:#64d2ff;color:#fff}.who i.d{background:#ff453a;color:#fff;text-decoration:line-through}
+.who i.l{background:#a6e4ff;color:#0b3a52}.who i.d{background:#ff453a;color:#fff;text-decoration:line-through}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:14px 16px 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 13px;border-radius:16px;font-size:13px;font-weight:600;background:var(--glass);border:.5px solid var(--line2);white-space:nowrap;transition:background .2s,color .2s}
@@ -294,8 +294,8 @@ details.grp[open]>.list{animation:rise .35s var(--spring) both}
 .vbig{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 16px 0}
 .vbig button{height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;background:var(--glass2);border:.5px solid var(--line2)}
 .vbig button .i{width:20px;height:20px}
-.vbig button.on.up{background:linear-gradient(135deg,#8fe3ff,#40c8ff);border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(100,210,255,.4)}
-svg.i.ic-heart{color:#64d2ff}
+.vbig button.on.up{background:linear-gradient(135deg,#c4efff,#8ad9ff);border-color:transparent;color:#0b3a52;box-shadow:0 8px 20px rgba(166,228,255,.45)}
+svg.i.ic-heart{color:#a6e4ff}
 .vbig button.on.dn{background:linear-gradient(135deg,#ff453a,#d70015);border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(255,69,58,.35)}
 .ov{margin:8px 18px 0;font-size:12.5px;color:var(--t2)}
 .acts2{display:flex;flex-wrap:wrap;gap:8px;margin:14px 16px 0}
@@ -466,7 +466,7 @@ shop:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18"/><path
 info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'
 };
 function ic(n,cls){const p=IC[n]||IC.dot;return `<svg class="i ic-${n}${cls?" "+cls:""}" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`}
-const EMO={"✓":"check","✔":"check","✅":"check","✕":"x","✖":"x","❌":"x","＋":"plus","★":"star","⭐":"star","💙":"heart","💚":"heart","❤":"heart","👍":"up","👎":"down","🚶":"walk","🗄":"archive","🍽":"food","🍴":"food","🚇":"metro","🎬":"film","🌨":"snow","❄":"snow","🧣":"snow","⛈":"storm","🌧":"rain","🌦":"rain","☁":"cloud","☀":"sun","🌤":"suncloud","⛅":"suncloud","🌫":"fog","🌡":"thermo","✎":"edit","✏":"edit","🏨":"bed","📅":"cal","📆":"cal","⏳":"hourglass","⇄":"swap","🔔":"bell","🔕":"belloff","🤖":"spark","✨":"spark","🚕":"car","📍":"pin","✈":"plane","🎄":"tree","⌖":"locate","◎":"locate","⚠":"alert","💳":"card","↗":"ext","⬇":"dl","📴":"offline","💬":"chat","📝":"note","⏰":"alarm","🧳":"bag","☕":"coffee","↔":"lr","⋯":"more","👀":"eye","👤":"user","⌕":"search","📐":"ruler","📷":"cam","⤢":"expand","📱":"phone","🚫":"ban","🎆":"fireworks","🎉":"party","🥳":"party","💵":"cash","🔌":"plug","◉":"ring","🎟":"ticket","🏆":"trophy","🤝":"handshake","🌙":"moon","ℹ":"info"};
+const EMO={"✓":"check","✔":"check","✅":"check","✕":"x","✖":"x","❌":"x","＋":"plus","★":"star","⭐":"star","🩵":"heart","💙":"heart","💚":"heart","❤":"heart","👍":"up","👎":"down","🚶":"walk","🗄":"archive","🍽":"food","🍴":"food","🚇":"metro","🎬":"film","🌨":"snow","❄":"snow","🧣":"snow","⛈":"storm","🌧":"rain","🌦":"rain","☁":"cloud","☀":"sun","🌤":"suncloud","⛅":"suncloud","🌫":"fog","🌡":"thermo","✎":"edit","✏":"edit","🏨":"bed","📅":"cal","📆":"cal","⏳":"hourglass","⇄":"swap","🔔":"bell","🔕":"belloff","🤖":"spark","✨":"spark","🚕":"car","📍":"pin","✈":"plane","🎄":"tree","⌖":"locate","◎":"locate","⚠":"alert","💳":"card","↗":"ext","⬇":"dl","📴":"offline","💬":"chat","📝":"note","⏰":"alarm","🧳":"bag","☕":"coffee","↔":"lr","⋯":"more","👀":"eye","👤":"user","⌕":"search","📐":"ruler","📷":"cam","⤢":"expand","📱":"phone","🚫":"ban","🎆":"fireworks","🎉":"party","🥳":"party","💵":"cash","🔌":"plug","◉":"ring","🎟":"ticket","🏆":"trophy","🤝":"handshake","🌙":"moon","ℹ":"info"};
 const EMO_RE=new RegExp("("+Object.keys(EMO).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\uFE0F?","gu");
 const PICTO_RE=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]️?/gu;
 function deEmojiNode(root){
@@ -878,7 +878,7 @@ function stopHtml(it){
   const B=S.booked[it.id],need=needsBook(it)&&!B,ph=photo(it);
   const cls=["stop",B?"ok":"",(it.must||both(it.id))&&!B?"exp":""].join(" ");
   const nn=S.notes.filter(n=>n.i===it.id).length;
-  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><div class="bw"><button class="more" data-more="${it.id}" aria-label="Düzenle">⋯</button><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}${it.rating?" · ★"+esc(String(it.rating).match(/[\d,]+\/5/)?String(it.rating).match(/[\d,]+\/5/)[0]:""):""}</small>${it.order?`<span class="ord">🍽 ${esc(it.order)}</span>`:""}<div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">💙 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}${it.fun?`<span class="tag taste">🎬 ilginç</span>`:""}${it.season?`<span class="tag" style="background:rgba(10,132,255,.18);color:#66b3ff">📅 sezon bilgisi</span>`:""}</div></div></button></div></div>`;
+  return `<div class="${cls}"><div class="tm">${esc(timeOf(it)||"—")}</div><div class="nd"></div><div class="bw"><button class="more" data-more="${it.id}" aria-label="Düzenle">⋯</button><button class="bx" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')"></span>`:bul(it.cat,30)}<div class="tx"><b>${esc(it.title)}</b><small>${esc(it.area||"")}${it.price?" · "+esc(String(it.price).split("·")[0].slice(0,40)):""}${it.rating?" · ★"+esc(String(it.rating).match(/[\d,]+\/5/)?String(it.rating).match(/[\d,]+\/5/)[0]:""):""}</small>${it.order?`<span class="ord">🍽 ${esc(it.order)}</span>`:""}<div class="tags">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${need?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet/rez.</span>`:""}${both(it.id)?`<span class="tag both">🩵 ikiniz</span>`:""}${it.taste?`<span class="tag taste">NY klasiği</span>`:""}${nn?`<span class="tag">✎ ${nn} not</span>`:""}${it.note?`<span class="tag urg">⚠ dikkat</span>`:""}${it.fun?`<span class="tag taste">🎬 ilginç</span>`:""}${it.season?`<span class="tag" style="background:rgba(10,132,255,.18);color:#66b3ff">📅 sezon bilgisi</span>`:""}</div></div></button></div></div>`;
 }
 
 /* ---------- REZERV ---------- */
@@ -951,7 +951,7 @@ function rvRow(it){
 /* ---------- KEŞFET ---------- */
 function rKesfet(){
   const arch=S.items.filter(x=>archInfo(x));
-  const F=[["all","Tümü"],["new","👀 Oy vermediklerim"],["both","💙 İkimiz"],["xmas","🎄 Noel"],["taste","🍴 Mutlaka ye"],["mine","👤 Benim bulduklarım"],["arch","🗄 Arşiv ("+arch.length+")"]];
+  const F=[["all","Tümü"],["new","👀 Oy vermediklerim"],["both","🩵 İkimiz"],["xmas","🎄 Noel"],["taste","🍴 Mutlaka ye"],["mine","👤 Benim bulduklarım"],["arch","🗄 Arşiv ("+arch.length+")"]];
   let h=`<div class="search">⌕<input id="kq" placeholder="Ara: caz, pizza, Tribeca…" value="${esc(kQuery)}"></div><div class="chips">${F.map(([k,n])=>`<button class="chip ${kFilter===k?"on":""}" data-kf="${k}">${n}</button>`).join("")}</div>`;
   const q=kQuery.trim().toLocaleLowerCase("tr");
   const pass=it=>{
@@ -989,7 +989,7 @@ function rowHtml(it){
 /* ---------- HARİTA ---------- */
 let LM=null,LG=null,meLL=null,meMk=null;
 function rHarita(){
-  const chips=[["all","Tümü"],["liked","💙 Beğenilenler"],...DAYS.map(z=>[z[0],fmtDay(z[0],1)])];
+  const chips=[["all","Tümü"],["liked","🩵 Beğenilenler"],...DAYS.map(z=>[z[0],fmtDay(z[0],1)])];
   return `<div class="chips">${chips.map(([k,n])=>`<button class="chip ${mapDay===k?"on":""}" data-md="${k}">${n}</button>`).join("")}</div><div id="mapwrap"><div id="lmap"></div><div class="mtools"><button id="mloc" aria-label="Konumum">◎</button><button id="mfit" aria-label="Sığdır">⤢</button></div></div><div class="legend" id="mleg"></div>`;
 }
 function mapItems(){
@@ -999,7 +999,7 @@ function mapItems(){
   return arr;
 }
 function mkIcon(it,n){const C=CAT[it.cat]||CAT.deneyim;const B=S.booked[it.id];
-  return L.divIcon({className:"",html:`<div class="mk ${n?"n":""}" style="background:linear-gradient(140deg,${C.g});color:#fff;${B?"border-color:#30d158;border-width:3.5px;box-shadow:0 0 0 4px rgba(48,209,88,.3),0 4px 12px rgba(0,0,0,.5)":both(it.id)?"border-color:#64d2ff;border-width:3.5px;box-shadow:0 0 0 4px rgba(100,210,255,.3),0 4px 12px rgba(0,0,0,.5)":""}">${n||ic(C.i)}</div>`,iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]})}
+  return L.divIcon({className:"",html:`<div class="mk ${n?"n":""}" style="background:linear-gradient(140deg,${C.g});color:#fff;${B?"border-color:#30d158;border-width:3.5px;box-shadow:0 0 0 4px rgba(48,209,88,.3),0 4px 12px rgba(0,0,0,.5)":both(it.id)?"border-color:#a6e4ff;border-width:3.5px;box-shadow:0 0 0 4px rgba(166,228,255,.35),0 4px 12px rgba(0,0,0,.5)":""}">${n||ic(C.i)}</div>`,iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]})}
 function popHtml(it){
   const ho=hotel();let dist="";
   if(ho&&ho.id!==it.id&&hasLL(ho)){const x=legInfo(ho,it);dist=`<div style="margin-top:4px">🏨 Otelden ${km(x.km)} · 🚶 ${x.walk} dk · 🚇 ~${x.transit} dk</div>`}
@@ -1053,7 +1053,7 @@ function itemSheet(it){
   let h="";
   if(it.photos&&it.photos.length)h+=`<div class="gal">${it.photos.map((u,k)=>`<img loading="lazy" src="${esc(u)}" alt="${esc(it.title)} ${k+1}">`).join("")}</div><div class="galc">📷 ${it.photos.length} fotoğraf · kaydırın${it.photo_credit?` · <a href="${esc((it.photo_src||[])[0]||"https://commons.wikimedia.org")}" target="_blank" rel="noopener">${esc(it.photo_credit)}</a>`:""}</div>`;
   h+=`<div class="dt"><div class="hero" style="padding:0">${bul(it.cat,52)}<div><div class="cat">${C.n}${it.taste?" · NY klasiği":""}${it.by&&PPL[it.by]?" · "+PPL[it.by].n+" buldu":""}</div><h3>${esc(it.title)}</h3></div></div>${it.sub?`<div class="sb">${esc(it.sub)}</div>`:""}
-  <div class="tags" style="margin-top:8px">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${needsBook(it)&&!B?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet / rezervasyon gerekli</span>`:""}${both(it.id)?`<span class="tag both">💙 ikiniz de beğendiniz</span>`:""}${it.must?`<span class="tag urg">kesin</span>`:""}${a?`<span class="tag ar">🗄 ${esc(a.r)}</span>`:""}</div>
+  <div class="tags" style="margin-top:8px">${B?`<span class="tag ok">✓ ${PPL[B]?PPL[B].n:""} aldı</span>`:""}${needsBook(it)&&!B?`<span class="tag ${it.urgent?"urg":"need"}">${it.urgent?"Acil · ":""}Bilet / rezervasyon gerekli</span>`:""}${both(it.id)?`<span class="tag both">🩵 ikiniz de beğendiniz</span>`:""}${it.must?`<span class="tag urg">kesin</span>`:""}${a?`<span class="tag ar">🗄 ${esc(a.r)}</span>`:""}</div>
   ${it.note?`<div class="alert y" style="margin:10px 0 0;width:100%"><span class="ai">⚠</span><div><span>${esc(it.note)}</span></div></div>`:""}
   ${it.order?`<div class="fun food">🍽<div><b>Burada ne yenir:</b> ${esc(it.order)}</div></div>`:""}
   ${it.fun?`<div class="fun">✨<div><b>İlginç bilgi:</b> ${esc(it.fun)}</div></div>`:""}
@@ -1097,7 +1097,7 @@ function addSheet(d){
   <div class="plbox"><label>Saat</label><input id="at" type="time" value="${def}" step="900"><span style="font-size:12px;color:var(--mute)">Listeden ＋ ile bu saate eklenir</span></div>
   <details class="plbox" style="display:block"><summary style="font-weight:800;cursor:pointer">✎ Kendi etkinliğini ekle (listede olmayan)</summary>
    <div style="display:grid;gap:8px;margin-top:10px"><input id="ctitle" placeholder="Ne? ör. Arkadaşla buluşma, alışveriş" style="width:100%"><div style="display:flex;gap:8px"><select id="ccat" style="flex:1">${catOpt}</select><input id="ctime" type="time" value="${def}" step="900"></div><input id="caddr" placeholder="Adres ya da yer adı (opsiyonel, haritaya düşer)" style="width:100%"><button class="btn k" id="cadd" data-cd="${d}">＋ Ekle</button></div></details>
-  <h2 class="sec">Önerilenler<small>beğenilenler üstte</small></h2><div class="list pick">${pool.slice(0,80).map(x=>`<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${x.id}">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💙":anyLike(x.id)?" · 👍":""}</small></span></button><button class="btn s k" data-addto="${x.id}|${d}">＋</button></div>`).join("")}</div>`;
+  <h2 class="sec">Önerilenler<small>beğenilenler üstte</small></h2><div class="list pick">${pool.slice(0,80).map(x=>`<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${x.id}">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 🩵":anyLike(x.id)?" · 👍":""}</small></span></button><button class="btn s k" data-addto="${x.id}|${d}">＋</button></div>`).join("")}</div>`;
 }
 function stopSheet(i){
   const it=I[i];const d=dayOf(it),t=timeOf(it);
@@ -1107,7 +1107,7 @@ function stopSheet(i){
   return `<div class="dt"><div class="cat">Durağı düzenle · ${fmtDay(d,1)} ${esc(t)}</div><h3>${esc(it.title)}</h3></div>
   <div class="plbox"><label>Saat / gün</label><select id="sd">${DAYS.map(z=>`<option value="${z[0]}" ${d===z[0]?"selected":""}>${fmtDay(z[0])}</option>`).join("")}</select><input id="st" type="time" value="${esc(t)}" step="900"><button class="btn k s" id="ssave">Kaydet</button></div>
   <div class="acts2"><button class="btn s" data-open="${i}">Detayı aç</button><button class="btn s r" id="srem">✕ Programdan çıkar</button></div>
-  <h2 class="sec">⇄ Yerine bunu koy<small>aynı gün ve saat</small></h2><div class="list pick">${cands.map(({x})=>`<div class="row">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 💙":anyLike(x.id)?" · 👍":""}${hasLL(x)&&hasLL(it)?" · "+km(hav(x,it)*1.3)+" uzakta":""}</small></span><button class="btn s k" data-rep="${x.id}">⇄</button></div>`).join("")}</div>`;
+  <h2 class="sec">⇄ Yerine bunu koy<small>aynı gün ve saat</small></h2><div class="list pick">${cands.map(({x})=>`<div class="row">${bul(x.cat)}<span class="tx"><b>${esc(x.title)}</b><small>${esc(x.area||"")}${both(x.id)?" · 🩵":anyLike(x.id)?" · 👍":""}${hasLL(x)&&hasLL(it)?" · "+km(hav(x,it)*1.3)+" uzakta":""}</small></span><button class="btn s k" data-rep="${x.id}">⇄</button></div>`).join("")}</div>`;
 }
 function openStop(i){openSheet(stopSheet(i),"stop:"+i);
   $("#ssave").onclick=()=>{doPlan(i,$("#sd").value,$("#st").value);toast("✓ "+fmtDay($("#sd").value,1)+" "+$("#st").value+" olarak kaydedildi");closeSheet()};
