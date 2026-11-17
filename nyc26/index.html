@@ -183,10 +183,11 @@ h2.sec small{font-family:var(--m);font-size:12px;color:var(--t3);font-weight:600
 .vq button{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.07);border:.5px solid var(--line);color:var(--t2);transition:transform .15s var(--spring),background .2s}
 .vq button .i{width:18px;height:18px}
 .vq button.on.up{background:linear-gradient(135deg,#30d158,#0fb36b);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(48,209,88,.35)}
-.vq button.on.dn{background:rgba(255,255,255,.18);color:#fff}
+.vq button.on.dn{background:linear-gradient(135deg,#ff453a,#d70015);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(255,69,58,.35)}
+.row.nope>button:first-child{opacity:.45}
 .who{display:flex;gap:3px;justify-content:flex-end;margin-top:5px}
 .who i{font-style:normal;font-size:9.5px;font-weight:800;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);color:var(--t3)}
-.who i.l{background:var(--green);color:#fff}.who i.d{background:rgba(255,255,255,.04);color:var(--t3);text-decoration:line-through}
+.who i.l{background:var(--green);color:#fff}.who i.d{background:#ff453a;color:#fff;text-decoration:line-through}
 .chips{display:flex;gap:7px;overflow-x:auto;padding:14px 16px 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 13px;border-radius:16px;font-size:13px;font-weight:600;background:var(--glass);border:.5px solid var(--line2);white-space:nowrap;transition:background .2s,color .2s}
@@ -294,7 +295,7 @@ details.grp[open]>.list{animation:rise .35s var(--spring) both}
 .vbig button{height:50px;border-radius:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;font-size:15px;background:var(--glass2);border:.5px solid var(--line2)}
 .vbig button .i{width:20px;height:20px}
 .vbig button.on.up{background:linear-gradient(135deg,#30d158,#0fb36b);border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(48,209,88,.35)}
-.vbig button.on.dn{background:rgba(255,255,255,.2)}
+.vbig button.on.dn{background:linear-gradient(135deg,#ff453a,#d70015);border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(255,69,58,.35)}
 .ov{margin:8px 18px 0;font-size:12.5px;color:var(--t2)}
 .acts2{display:flex;flex-wrap:wrap;gap:8px;margin:14px 16px 0}
 .plbox{margin:16px 16px 0;padding:12px;border-radius:var(--r);background:var(--glass);border:.5px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -980,7 +981,7 @@ function rowHtml(it){
   const ph=photo(it),a=archInfo(it),B=S.booked[it.id];
   const nv=vote("necmi",it.id),av=vote("ahmet",it.id);
   const wi=(p,v)=>`<i class="${v===1?"l":v===-1?"d":""}">${PPL[p].l}</i>`;
-  return `<div class="row"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.rating?`<div class="pr" style="color:var(--gold)">★ ${esc(String(it.rating).replace(/ · \d.*$/,"").slice(0,40))}</div>`:""}${it.order?`<span class="ord">🍽 ${esc(it.order)}</span>`:""}${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${!a&&isAlt(it)?`<span class="tag ar">alternatif</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:(it.when&&!isDate(it.when)&&it.cat!=="otel"?`<span class="tag" style="background:rgba(10,132,255,.18);color:#66b3ff">📅 ${esc(String(it.when).slice(0,28))}</span>`:"")}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.fun?`<span class="tag taste">🎬 ilginç</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
+  return `<div class="row${mv(it.id)===-1?" nope":""}"><button style="display:flex;gap:10px;align-items:center;flex:1;min-width:0;text-align:left" data-open="${it.id}">${ph?`<span class="ph" style="background-image:url('${esc(ph)}')">${bul(it.cat)}</span>`:bul(it.cat)}<span class="tx"><b>${esc(it.title)}</b><small>${esc([it.sub,it.area].filter(Boolean).join(" · "))}</small>${it.rating?`<div class="pr" style="color:var(--gold)">★ ${esc(String(it.rating).replace(/ · \d.*$/,"").slice(0,40))}</div>`:""}${it.order?`<span class="ord">🍽 ${esc(it.order)}</span>`:""}${it.price?`<div class="pr">${esc(String(it.price).slice(0,70))}</div>`:""}<span class="tags">${B?`<span class="tag ok">✓ alındı</span>`:""}${a?`<span class="tag ar">${esc(a.r)}</span>`:""}${!a&&isAlt(it)?`<span class="tag ar">alternatif</span>`:""}${dayOf(it)&&it.cat!=="otel"?`<span class="tag">${fmtDay(dayOf(it),1)}${timeOf(it)?" "+esc(timeOf(it)):""}</span>`:(it.when&&!isDate(it.when)&&it.cat!=="otel"?`<span class="tag" style="background:rgba(10,132,255,.18);color:#66b3ff">📅 ${esc(String(it.when).slice(0,28))}</span>`:"")}${it.urgent&&!B?`<span class="tag urg">acil</span>`:""}${it.size?`<span class="tag">📐 ${esc(it.size.split(" ")[0])} m²</span>`:""}${it.fun?`<span class="tag taste">🎬 ilginç</span>`:""}${it.by&&it.by!=="claude"?`<span class="tag by">${PPL[it.by]?PPL[it.by].n:""} buldu</span>`:""}${(it.addedAt||0)>(seen.k||0)?`<span class="tag urg">yeni</span>`:""}</span></span></button>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="vq"><button class="${mv(it.id)===1?"on up":""}" data-v="${it.id}|1" aria-label="Beğendim">👍</button><button class="${mv(it.id)===-1?"on dn":""}" data-v="${it.id}|-1" aria-label="Geç">👎</button></div><div class="who">${wi("necmi",nv)}${wi("ahmet",av)}</div></div></div>`;
 }
 
