@@ -197,6 +197,12 @@ h2.sec small{font-family:var(--m);font-size:12px;color:var(--t3);font-weight:600
 .search input{flex:1;border:0;background:none;outline:none;font-size:16px;color:var(--t1)}
 .search input::placeholder{color:var(--t3)}
 details.grp{margin:0 0 6px}
+.rooms{margin:14px 0 4px}.rooms h4{margin:0 0 8px;font-size:16px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}.rooms h4 small{font-size:11.5px;color:var(--t3);font-weight:600}.rooms h4 .up{font-size:12px;color:#ff8a80}.rooms h4 .dn{font-size:12px;color:var(--green)}
+.rm{padding:10px 11px;border-radius:14px;background:var(--glass);border:.5px solid var(--line);margin-bottom:7px}.rm.dir{border-color:rgba(247,199,91,.45);background:rgba(247,199,91,.08)}
+.rmh{display:flex;gap:8px;align-items:baseline;justify-content:space-between}.rmh b{font-size:14px}.rmh .m2{font-family:var(--m);font-size:12.5px;font-weight:700;color:var(--teal);white-space:nowrap}
+.rm .ft{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.rm .ft span{font-size:10.5px;padding:2px 6px;border-radius:6px;background:rgba(255,255,255,.07);color:var(--t2)}
+.rts{display:flex;flex-direction:column;gap:5px;margin-top:8px}.rt{display:grid;grid-template-columns:auto 1fr;gap:0 8px;padding:6px 9px;border-radius:10px;background:rgba(48,209,88,.09);border:.5px solid rgba(48,209,88,.25);text-decoration:none;color:inherit}.rt.nr{background:rgba(255,255,255,.04);border-color:var(--line)}
+.rt b{font-family:var(--m);font-size:13.5px}.rt span{font-family:var(--m);font-size:12px;color:var(--t2);text-align:right}.rt i{grid-column:1/-1;font-style:normal;font-size:11.5px;color:var(--t3)}
 .cmp{margin:0 16px 12px;border-radius:var(--r);background:var(--glass);border:.5px solid var(--line);overflow:hidden}
 .cmph{padding:11px 12px 9px;border-bottom:.5px solid var(--line)}.cmph b{display:block;font-size:15px}.cmph small{font-size:11.5px;color:var(--t3)}
 .cr{display:flex;gap:10px;align-items:center;padding:9px 6px 9px 12px;border-bottom:.5px solid var(--line);cursor:pointer}.cr:last-child{border-bottom:0}
@@ -240,6 +246,8 @@ details.grp[open]>.list{animation:rise .35s var(--spring) both}
 .mkh{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;background:#fff;color:#111;font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:12px;border:2px solid #111;box-shadow:0 4px 12px rgba(0,0,0,.45);transform:translate(-4px,-4px)}
 .mkh b{font-family:var(--m);font-size:11px;background:#111;color:#fff;border-radius:7px;padding:1px 5px}
 .mkh.l1{border-color:#66b3ff}.mkh.lk{border-color:#0a84ff;box-shadow:0 0 0 3px rgba(10,132,255,.45),0 4px 12px rgba(0,0,0,.45)}.mkh.no{opacity:.5}
+.mkh em{font-style:normal;font-family:var(--m);font-size:11px;color:#b35900}.mkh.sel{border-color:#ff9f0a;box-shadow:0 0 0 3px rgba(255,159,10,.5),0 4px 12px rgba(0,0,0,.45)}
+.hsel{width:100%}.hnear{display:grid;gap:4px;margin-top:8px;max-height:220px;overflow:auto}.hnear button{display:flex;justify-content:space-between;gap:8px;text-align:left;padding:7px 9px;border-radius:10px;background:var(--glass);border:.5px solid var(--line);font-size:12.5px}.hnear span{font-family:var(--m);font-size:11.5px;color:var(--t2);white-space:nowrap}
 .mk.ht{background:#fff;color:#111;border-color:#111;border-radius:10px}
 .leaflet-popup-content-wrapper{border-radius:16px;background:rgba(28,30,44,.92);color:var(--t1);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:0 12px 30px rgba(0,0,0,.5)}
 .leaflet-popup-tip{background:rgba(28,30,44,.92)}
@@ -1056,17 +1064,41 @@ function drawMap(fit){
   const cats=[...new Set(list.map(x=>x.cat))].filter(c=>CAT[c]);
   $("#mleg").innerHTML=cats.map(c=>`<span>${bul(c,14)}${CAT[c].n}</span>`).join("")+`<span><span class="bul" style="width:14px;height:14px;background:#fff;color:#111;font-size:8px;border-radius:2px">H</span>Otel</span><span>yeşil çerçeve: ikiniz / alındı</span>`;
 }
+function roomsHtml(it){
+  const R=it.rooms||[],D=it.direct||[];if(!R.length&&!D.length)return"";
+  const usd=n=>"$"+Math.round(n).toLocaleString("en-US");
+  const rt=(x,href)=>`<a class="rt${x.c==="iadesiz"?" nr":""}" ${href?`href="${esc(href)}" target="_blank" rel="noopener"`:""}><b>${usd(x.usd)}</b><span>≈ ${tlS(x.usd*FX())}</span><i>${x.b?"🍳 kahvaltılı · ":""}${esc(x.c==="iadesiz"?"iadesiz":x.c.replace("iptal ≤","ücretsiz iptal"))}</i></a>`;
+  const ph=it.ph||[];let tr="";if(ph.length>1){const a=ph[ph.length-2].usd,b=ph[ph.length-1].usd;if(a!==b)tr=`<span class="${b>a?"up":"dn"}">${b>a?"▲":"▼"} ${usd(Math.abs(b-a))} (${esc(ph[ph.length-2].d.slice(5).split("-").reverse().join("."))}'ten beri)</span>`}
+  let h=`<div class="rooms"><h4>Oda seçenekleri <small>7 gece · 2 kişi${it.rooms_at?" · Booking "+esc(it.rooms_at.slice(5).split("-").reverse().join(".")):""}</small>${tr}</h4>`;
+  if(D.length)h+=`<div class="rm dir"><div class="rmh"><b>🏨 Otelin doğrudan teklifi</b></div><div class="rts">${D.map(d=>rt({usd:d.usd,c:d.l+(d.n?" · "+d.n:""),b:false})).join("")}</div></div>`;
+  h+=R.map(r=>`<div class="rm"><div class="rmh"><b>${esc(r.n)}</b>${r.m2?`<span class="m2">${r.m2} m²</span>`:""}</div>${(r.feat||[]).length?`<div class="ft">${r.feat.map(f=>`<span>${esc(f)}</span>`).join("")}</div>`:""}<div class="rts">${r.rates.map(x=>rt(x,it.rooms_url)).join("")}</div></div>`).join("");
+  return h+`<div class="hint" style="padding:6px 2px 0">Fiyatlar Booking toplamı (vergi dahil olup olmadığını ödeme sayfasında kontrol edin). Fiyata dokununca Booking açılır.</div></div>`;
+}
 function hotelBest(it){const v=[tlNum(it.price),...(it.direct||[]).map(d=>d.usd*FX())].filter(Boolean);return v.length?Math.min(...v):null}
+let hSel=ls("nyc_hsel")||null;
 function drawHotels(fit){
-  const hs=mapItems(),pts=[];
+  const hs=mapItems(),pts=[];const sel=hs.find(x=>x.id===hSel);
   S.items.filter(x=>hasLL(x)&&dayOf(x)&&x.cat!=="otel"&&x.cat!=="ucus"&&!isAlt(x)).forEach(it=>L.circleMarker([it.lat,it.lng],{radius:4,color:"#fff",weight:1,fillColor:(CAT[it.cat]||CAT.deneyim).c,fillOpacity:.75}).bindPopup(popHtml(it)).addTo(LG));
-  hs.forEach(it=>{const p=hotelBest(it),lk=both(it.id)||S.booked[it.id]?" lk":anyLike(it.id)?" l1":"",nope=mv(it.id)===-1?" no":"";
+  if(sel)hs.forEach(it=>{if(it!==sel)L.polyline([[sel.lat,sel.lng],[it.lat,it.lng]],{color:"#ff9f0a",weight:1.5,opacity:.55,dashArray:"4 6"}).addTo(LG)});
+  hs.forEach(it=>{const p=hotelBest(it),lk=both(it.id)||S.booked[it.id]?" lk":anyLike(it.id)?" l1":"",nope=mv(it.id)===-1?" no":"",isS=sel===it;
     const nm=esc(it.title.replace(/^The /,"").split(/[·(]/)[0].trim().slice(0,18));
-    L.marker([it.lat,it.lng],{icon:L.divIcon({className:"",html:`<div class="mkh${lk}${nope}">🏨 ${nm}${p?`<b>${Math.round(p/1000)}k</b>`:""}</div>`,iconSize:null,iconAnchor:[14,14]}),zIndexOffset:lk?600:400}).bindPopup(popHtml(it)+(p?`<div style="font-size:12px;margin-top:4px">7 gece en düşük: <b>${tlS(p)}</b></div>`:"")).addTo(LG);pts.push([it.lat,it.lng])});
+    const dist=sel&&!isS?`<em>${km(legInfo(sel,it).km)}</em>`:"";
+    const m=L.marker([it.lat,it.lng],{icon:L.divIcon({className:"",html:`<div class="mkh${lk}${nope}${isS?" sel":""}">🏨 ${nm}${p?`<b>${Math.round(p/1000)}k</b>`:""}${dist}</div>`,iconSize:null,iconAnchor:[14,14]}),zIndexOffset:isS?900:lk?600:400}).addTo(LG);
+    m.on("click",()=>{hSel=hSel===it.id?null:it.id;ls("nyc_hsel",hSel);haptic(6);drawMap(false)});pts.push([it.lat,it.lng])});
   if(meLL){meMk=L.marker([meLL.lat,meLL.lng],{icon:L.divIcon({className:"",html:`<div class="mk me"></div>`,iconSize:[18,18],iconAnchor:[9,9]})}).addTo(LG)}
   if(fit&&pts.length)LM.fitBounds(pts,{padding:[40,40],maxZoom:14});
-  $("#mleg").innerHTML=`<span>🏨 etiket: 7 gece en düşük fiyat (bin TL)</span><span>mavi çerçeve: beğenilen</span><span>küçük noktalar: programdaki duraklar</span>`;
+  let lg;
+  if(sel){const near=hs.filter(x=>x!==sel).map(x=>({x,l:legInfo(sel,x)})).sort((a,b)=>a.l.km-b.l.km);
+    const djs=S.items.filter(x=>hasLL(x)&&dayOf(x)&&x.cat!=="otel"&&x.cat!=="ucus").map(x=>({x,l:legInfo(sel,x)}));const avg=djs.length?djs.reduce((a,b)=>a+b.l.km,0)/djs.length:0;
+    lg=`<div class="hsel"><div><b>🏨 ${esc(sel.title)}</b> seçili${p0(sel)}<div class="hint" style="padding:2px 0 0">Etiketlerdeki km bu otele uzaklık (yol tahmini).${djs.length?` Programdaki ${djs.length} durağa ortalama ${km(avg)}.`:""}</div></div><div class="acts2" style="margin:6px 0 0"><button class="btn s" data-open="${sel.id}">Odalar & detay</button><button class="btn s" id="hclr">✕ Seçimi kaldır</button></div>
+    <div class="hnear">${near.map(({x,l})=>`<button data-hs="${x.id}"><b>${esc(x.title.replace(/^The /,"").split(/[·(]/)[0].trim())}</b><span>${km(l.km)} · 🚶 ${l.walk} dk · 🚇 ~${l.transit} dk</span></button>`).join("")}</div></div>`}
+  else lg=`<span>Bir otele dokunun: diğer otellere ve programınıza uzaklığı görünür</span><span>🏨 etiket: 7 gece en düşük fiyat (bin TL)</span><span>mavi çerçeve: beğenilen</span><span>küçük noktalar: programdaki duraklar</span>`;
+  const L2=$("#mleg");L2.innerHTML=lg;
+  const c=$("#hclr");if(c)c.onclick=()=>{hSel=null;ls("nyc_hsel",null);drawMap(false)};
+  L2.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>openItem(b.dataset.open));
+  L2.querySelectorAll("[data-hs]").forEach(b=>b.onclick=()=>{hSel=b.dataset.hs;ls("nyc_hsel",hSel);drawMap(false);const h=I[hSel];if(h)LM.panTo([h.lat,h.lng])});
 }
+function p0(it){const p=hotelBest(it);return p?` · en düşük ${tlS(p)}`:""}
 function locate(){
   if(!navigator.geolocation)return toast("Konum desteklenmiyor");
   toast("📍 Konum alınıyor…");
@@ -1109,6 +1141,7 @@ function itemSheet(it){
   if(it.addr)F.push(["Adres",it.addr,1]);
   if(ho&&hasLL(ho)&&hasLL(it)&&ho.id!==it.id){const x=legInfo(ho,it);F.push(["Otelden",`${km(x.km)} · 🚶 ${x.walk} dk · 🚇 ~${x.transit} dk`,1])}
   h+=`<div class="facts">${F.map(([k,v,w])=>`<div class="${w?"wide":""}"><small>${k}</small>${esc(v)}</div>`).join("")}</div>`;
+  if(it.cat==="otel")h+=roomsHtml(it);
   if(it.cat!=="ucus"){
     h+=`<div class="vbig"><button class="${mv(it.id)===1?"on up":""}" data-v="${it.id}|1">👍 Beğendim</button><button class="${mv(it.id)===-1?"on dn":""}" data-v="${it.id}|-1">👎 Geç</button></div>`;
     const o=ov(it.id);h+=`<div class="ov">${PPL[OTHER()].n}: ${o===1?"👍 beğendi":o===-1?"👎 geçti":"henüz oy vermedi"}</div>`;
