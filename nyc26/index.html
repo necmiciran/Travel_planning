@@ -197,6 +197,14 @@ h2.sec small{font-family:var(--m);font-size:12px;color:var(--t3);font-weight:600
 .search input{flex:1;border:0;background:none;outline:none;font-size:16px;color:var(--t1)}
 .search input::placeholder{color:var(--t3)}
 details.grp{margin:0 0 6px}
+.cmp{margin:0 16px 12px;border-radius:var(--r);background:var(--glass);border:.5px solid var(--line);overflow:hidden}
+.cmph{padding:11px 12px 9px;border-bottom:.5px solid var(--line)}.cmph b{display:block;font-size:15px}.cmph small{font-size:11.5px;color:var(--t3)}
+.cr{display:flex;gap:10px;align-items:center;padding:9px 6px 9px 12px;border-bottom:.5px solid var(--line);cursor:pointer}.cr:last-child{border-bottom:0}
+.cr.ref{background:rgba(10,132,255,.16)}.cr.nope{opacity:.45}
+.cr .cl{flex:1;min-width:0}.cr .cl b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cr small{display:block;font-size:11.5px;color:var(--t2)}.cr .cn{color:var(--t3)}
+.cr .src{font-size:10px;font-weight:700;padding:1px 5px;border-radius:5px;background:rgba(255,255,255,.08);margin-right:5px}.cr .src.dir{background:rgba(247,199,91,.2);color:var(--gold)}
+.cr .cv{text-align:right;flex:none}.cr .cv b{font-family:var(--m);font-size:13.5px}.cr .d{font-family:var(--m);font-size:11px;font-weight:700;color:var(--t3)}.cr .d.up{color:#ff8a80}.cr .d.dn{color:var(--green)}
+.cr .co{width:26px;height:30px;color:var(--t3);font-size:20px;flex:none}
 details.grp>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 16px 10px;cursor:pointer}
 details.grp>summary::-webkit-details-marker{display:none}
 details.grp>summary .bul{width:34px;height:34px;font-size:14px}
@@ -972,12 +980,27 @@ function rKesfet(){
     S.items.filter(it=>f(it)).forEach(it=>used.add(it.id));
     if(!arr.length)continue;any=true;
     const open=q||kFilter!=="all"||ls("nyc_g_"+k)==="1"||(openGrp===k);
-    h+=`<details class="grp" data-g="${k}" ${open?"open":""}><summary>${bul(cat,30)}<b>${n}</b><small>${arr.length}</small></summary><div class="list">${arr.map(rowHtml).join("")}</div></details>`;
+    h+=`<details class="grp" data-g="${k}" ${open?"open":""}><summary>${bul(cat,30)}<b>${n}</b><small>${arr.length}</small></summary>${k==="otel"?hotelCmp(arr):""}<div class="list">${arr.map(rowHtml).join("")}</div></details>`;
   }
   if(!any)h+=`<div class="empty">Burada bir şey yok.</div>`;
   return h;
 }
 let openGrp=null;
+/* ---------- otel karşılaştırma ---------- */
+let cmpRef=ls("nyc_cmpref")||"";
+const tlNum=s=>{const m=/([\d.]+)\s*TL/.exec(String(s||""));return m?+m[1].replace(/\./g,""):null};
+const fNum=s=>{const m=/(\d+(?:[.,]\d+)?)/.exec(String(s||""));return m?parseFloat(m[1].replace(",",".")):null};
+const tlS=n=>Math.round(n).toLocaleString("tr-TR")+" TL";
+function hotelCmp(arr){
+  const R=[];
+  arr.forEach(it=>{const t=tlNum(it.price);if(t)R.push({it,k:it.id+"|b",l:"Booking",tl:t});(it.direct||[]).forEach((d,i)=>R.push({it,k:it.id+"|d"+i,l:d.l,tl:d.usd*FX(),usd:d.usd,n:d.n}))});
+  if(R.length<2)return"";
+  R.sort((a,b)=>a.tl-b.tl);
+  const ref=R.find(r=>r.k===cmpRef)||R.find(r=>both(r.it.id))||R.find(r=>mv(r.it.id)===1&&r.it.by===ME)||R.find(r=>mv(r.it.id)===1)||R[0];
+  const N=7;
+  return `<div class="cmp"><div class="cmph"><b>Fiyat karşılaştırma</b><small>7 gece · 2 kişi · satıra dokun: kıyas oteli seç · 1 $ = ${fmtN(FX(),2)} TL${S.meta.fx&&S.meta.fx.date?" ("+esc(S.meta.fx.date)+")":""}</small></div>${R.map(r=>{const it=r.it,d=r.tl-ref.tl,isRef=r===ref;const m2=fNum(it.size),rt=fNum(it.rating);
+    return `<div class="cr${isRef?" ref":""}${mv(it.id)===-1?" nope":""}" data-cref="${esc(r.k)}"><div class="cl"><b>${both(it.id)?"🩵 ":""}${esc(it.title)}</b><small><span class="src${r.usd?" dir":""}">${esc(r.l)}</span>${esc((it.area||"").split(",")[0])}${m2?` · ${String(m2).replace(".",",")} m²`:""}${rt?` · ★ ${String(rt).replace(".",",")}`:""}</small>${r.n?`<small class="cn">${esc(r.n)}</small>`:""}</div><div class="cv"><b>${tlS(r.tl)}</b><small>${r.usd?"$"+r.usd.toLocaleString("en-US",{maximumFractionDigits:0})+" · ":""}${tlS(r.tl/N)}/gece</small><span class="d ${isRef?"":d>0?"up":"dn"}">${isRef?"kıyas":(d>0?"+":"−")+tlS(Math.abs(d))+" · $"+Math.round(Math.abs(d)/FX()).toLocaleString("en-US")}</span></div><button class="co" data-open="${it.id}" aria-label="Detay">›</button></div>`}).join("")}</div>`;
+}
 function rowHtml(it){
   const ph=photo(it),a=archInfo(it),B=S.booked[it.id];
   const nv=vote("necmi",it.id),av=vote("ahmet",it.id);
@@ -1205,6 +1228,7 @@ function bindView(){
   v.querySelectorAll("[data-book]").forEach(b=>b.onclick=()=>doBook(b.dataset.book));
   v.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{if(b.dataset.grp){openGrp=b.dataset.grp;kFilter="all"}go(b.dataset.go)});
   v.querySelectorAll("[data-kf]").forEach(b=>b.onclick=()=>{kFilter=b.dataset.kf;render()});
+  v.querySelectorAll("[data-cref]").forEach(b=>b.onclick=e=>{if(e.target.closest("[data-open]"))return;cmpRef=b.dataset.cref;ls("nyc_cmpref",cmpRef);haptic(6);render()});
   v.querySelectorAll("details.grp").forEach(d=>d.ontoggle=()=>ls("nyc_g_"+d.dataset.g,d.open?"1":"0"));
   v.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{mapDay=b.dataset.md;ls("nyc_mday",mapDay);v.querySelectorAll("[data-md]").forEach(x=>x.classList.toggle("on",x===b));drawMap(true)});
   v.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openSheet(addSheet(b.dataset.add),"add"));

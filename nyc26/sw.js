@@ -1,5 +1,5 @@
 /* NYC '26 service worker: çevrimdışı kabuk, harita karoları, fotoğraflar, bildirimler */
-const V = "nyc26-v13";
+const V = "nyc26-v14";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png",
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css",
   "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"];
